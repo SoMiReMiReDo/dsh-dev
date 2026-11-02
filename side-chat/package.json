@@ -1,9 +1,9 @@
 {
   "name": "dsh-side-chat",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Side conversations: fork the current session into the right sidebar without disturbing the main chat.",
+  "description": "Side conversations: an in-memory, read-only companion panel that reads the main conversation live; closing it ends it.",
   "main": "index.js",
   "exports": {
     ".": "./index.js",
@@ -34,5 +34,8 @@
         "@deepseek-ai/dsh-client-ui-sidebar-right"
       ]
     }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
   }
 }

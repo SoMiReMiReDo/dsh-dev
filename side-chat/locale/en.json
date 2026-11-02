@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Side chat",
-    "description": "Fork the current session into the right sidebar without interrupting the main chat."
+    "description": "Open a temporary read-only side conversation beside the main chat: context is read live and it disappears when closed or restarted."
   }
 }
