@@ -37,7 +37,7 @@ const LIST_PATH = '/api/sidechat.list'
 const SECTION_ORDER = 9500
 
 /** Max accepted request body; every route carries one session id. */
-const MAX_BODY_BYTES = 8 * 1024
+const MAX_BODY_BYTES = 64 * 1024
 
 /** Budget for the first injected main-conversation snapshot (characters). */
 const MAX_SNAPSHOT_CHARS = 60_000
@@ -148,6 +148,31 @@ export function apply(ctx) {
 		fetch: () => Response.json({ items: liveSideChats(sideChats) })
 	}), 'side-chat: list route')
 
+	// Only process-local side-chat ids are accepted. Never fall back to the
+	// ordinary Session reader: it rejects cwd-less Sessions, including live ones.
+	for (const operation of ['read', 'send', 'cancel']) {
+		ctx.effect(() => ctx.connection.fetch.register({
+			path: `/api/sidechat.${operation}`,
+			methods: ['POST'],
+			requestBody: 'buffered',
+			fetch: (request) => chatOperation(ctx, sideChats, operation, request)
+		}), `side-chat: ${operation} route`)
+	}
+	ctx.effect(() => ctx.on('agent/assistant-stream', ({ agent, frame }) => {
+		const record = sideChats.get(agent.id)
+		if (record === undefined) return
+		if (frame.type === 'start') record.stream = { id: frame.attemptId, blocks: new Map() }
+		if (frame.type === 'end') record.stream = undefined
+		if (frame.type !== 'chunk' || record.stream?.id !== frame.attemptId) return
+		const chunk = frame.chunk
+		if (chunk.type === 'text-delta') record.stream.blocks.set(chunk.index, (record.stream.blocks.get(chunk.index) ?? '') + chunk.text)
+		if (chunk.type === 'block-end' && chunk.block?.type === 'text') record.stream.blocks.set(chunk.index, chunk.block.text)
+	}, { global: true }), 'side-chat: streamed replies')
+	ctx.effect(() => ctx.on('agent/error', ({ agent, error }) => {
+		const record = sideChats.get(agent.id)
+		if (record) record.error = String(error?.message ?? error)
+	}, { global: true }), 'side-chat: reply errors')
+
 	// v0.1.x forked side conversations are ordinary durable Sessions; archive
 	// them once so an upgrade does not leave them in the workspace list. Both
 	// services may activate after this plugin, so wait for them.
@@ -158,6 +183,57 @@ export function apply(ctx) {
 			})
 		}, 'side-chat: legacy cleanup')
 	})
+}
+
+/** Authenticated, registry-scoped transport for the plugin's own chat panel. */
+async function chatOperation(ctx, records, operation, request) {
+	try {
+		const body = await readBody(request)
+		const record = records.get(sessionIdOf(body))
+		if (record === undefined || record.disposed) return failure(404, 'sidechat/gone', 'This side conversation has ended')
+		const agent = record.handle.agent
+		if (operation === 'cancel') {
+			agent.cancel({ kind: 'user' })
+			return Response.json({ ok: true })
+		}
+		if (operation === 'send') {
+			const text = typeof body.text === 'string' ? body.text.trim() : ''
+			if (text === '' || text.length > 16000 || typeof body.requestId !== 'string' || !/^[\w-]{1,100}$/.test(body.requestId)) {
+				return failure(400, 'sidechat/bad-request', 'Send text (1–16000 characters) and a requestId')
+			}
+			if (record.requests.has(body.requestId)) return Response.json({ ok: true, reused: true })
+			if (record.busy || agent.status === 'running') return failure(409, 'sidechat/busy', 'Wait for the current reply or stop it first')
+			record.busy = true
+			record.error = undefined
+			try {
+				agent.followup({ id: body.requestId, role: 'user', content: [{ type: 'text', text }], source: { kind: 'user' } })
+				record.requests.add(body.requestId)
+				if (record.requests.size > 1000) record.requests.delete(record.requests.values().next().value)
+				Promise.resolve(agent.whenIdle()).catch((error) => { record.error = String(error?.message ?? error) }).finally(() => { record.busy = false })
+			} catch (error) {
+				record.busy = false
+				throw error
+			}
+			return Response.json({ ok: true })
+		}
+		const messages = agent.session.deriveMessages().filter((message) =>
+			message.role === 'assistant' || message.role === 'user' && message.source?.kind === 'user'
+		).map((message) => ({
+			id: message.id,
+			role: message.role,
+			text: (message.content ?? []).filter((block) => block.type === 'text').map((block) => block.text).join('\n')
+		})).filter((message) => message.text !== '').slice(-100)
+		const parent = ctx.sessions.get(record.parentId)
+		return Response.json({
+			messages,
+			running: record.busy === true || agent.status === 'running',
+			stream: record.stream === undefined ? undefined : { id: record.stream.id, text: [...record.stream.blocks.values()].join('') },
+			error: record.error,
+			contextMessages: parent?.deriveMessages().filter((message) => renderMessage(message) !== '').length ?? 0
+		})
+	} catch (error) {
+		return createFailure(error)
+	}
 }
 
 /**
@@ -304,7 +380,7 @@ async function createSideChat(ctx, sideChats, byParent, parentId) {
 		}
 	})
 
-	const record = { childId, parentId, parentTitle, handle, disposed: false }
+	const record = { childId, parentId, parentTitle, handle, disposed: false, requests: new Set() }
 	sideChats.set(childId, record)
 	byParent.set(parentId, childId)
 	await renameChild(ctx, childId, parentTitle)

@@ -155,6 +155,8 @@ function harness(options = {}) {
 			async create(createOptions) {
 				const child = {
 					id: createOptions.sessionId,
+					messages: [],
+					deriveMessages() { return this.messages },
 					header: { version: 4, id: createOptions.sessionId, createdAt: 0, isSeeded: false },
 					events: [],
 					append(type, data) {
@@ -167,7 +169,16 @@ function harness(options = {}) {
 						return child.events
 					}
 				}
-				const agent = { id: createOptions.sessionId, session: child }
+				let finishTurn
+				const agent = {
+					id: createOptions.sessionId, session: child, status: 'idle',
+					followup(message) {
+						child.messages.push(message)
+						this.status = 'running'
+					},
+					whenIdle() { return new Promise((resolve) => { finishTurn = resolve }) },
+					cancel() { this.status = 'idle'; finishTurn?.() }
+				}
 				const agentListeners = new Map()
 				const agentCtx = {
 					systemPrompt: {
@@ -451,4 +462,50 @@ test('legacy cleanup archives only seeded side-marked forks', async () => {
 	await new Promise((resolve) => setImmediate(resolve))
 	await new Promise((resolve) => setImmediate(resolve))
 	assert.deepEqual(h.state.archived, [legacyFork])
+})
+
+test('chat transport only accepts registered live children and hides injected context', async () => {
+	const h = harness()
+	assert.equal((await h.call('/api/sidechat.read', { sessionId: PARENT_ID })).status, 404)
+	const { body: opened } = await h.call('/api/sidechat.open', { sessionId: PARENT_ID })
+	const sessionId = opened.sessionId
+	const child = h.state.created.child
+	child.messages.push(message('user', 'my question'), message('assistant', 'my answer'), {
+		...message('user', 'hidden main transcript'), source: { kind: 'side-chat-context' }
+	}, { ...message('system', 'hidden system') })
+	const read = await h.call('/api/sidechat.read', { sessionId })
+	assert.deepEqual(read.body.messages.map((m) => m.text), ['my question', 'my answer'])
+	assert.equal(read.body.contextMessages, 2)
+	await h.call('/api/sidechat.close', { sessionId })
+	for (const method of ['read', 'send', 'cancel']) assert.equal((await h.call(`/api/sidechat.${method}`, { sessionId })).status, 404)
+})
+
+test('send deduplicates requests, rejects concurrent turns, and cancel releases the turn', async () => {
+	const h = harness()
+	const { body: { sessionId } } = await h.call('/api/sidechat.open', { sessionId: PARENT_ID })
+	assert.equal((await h.call('/api/sidechat.send', { sessionId, text: ' ', requestId: 'a' })).status, 400)
+	assert.equal((await h.call('/api/sidechat.send', { sessionId, text: 'question', requestId: 'a' })).status, 200)
+	assert.equal((await h.call('/api/sidechat.send', { sessionId, text: 'question', requestId: 'a' })).body.reused, true)
+	assert.equal((await h.call('/api/sidechat.send', { sessionId, text: 'question', requestId: 'b' })).status, 409)
+	assert.equal(h.state.created.child.messages.length, 1)
+	assert.equal((await h.call('/api/sidechat.read', { sessionId })).body.running, true)
+	await h.call('/api/sidechat.cancel', { sessionId })
+	await new Promise((resolve) => setImmediate(resolve))
+	assert.equal((await h.call('/api/sidechat.read', { sessionId })).body.running, false)
+})
+
+test('stream snapshots include visible text only and surface model errors', async () => {
+	const h = harness()
+	const { body: { sessionId } } = await h.call('/api/sidechat.open', { sessionId: PARENT_ID })
+	const agent = h.state.created.agent
+	const emit = (frame) => h.state.events.get('agent/assistant-stream')({ agent, frame })
+	emit({ type: 'start', attemptId: 'attempt-1' })
+	emit({ type: 'chunk', attemptId: 'attempt-1', chunk: { type: 'reasoning-delta', index: 0, text: 'private reasoning' } })
+	emit({ type: 'chunk', attemptId: 'attempt-1', chunk: { type: 'text-delta', index: 1, text: 'hello' } })
+	emit({ type: 'chunk', attemptId: 'attempt-1', chunk: { type: 'block-end', index: 1, block: { type: 'text', text: 'hello world' } } })
+	assert.equal((await h.call('/api/sidechat.read', { sessionId })).body.stream.text, 'hello world')
+	emit({ type: 'end', attemptId: 'attempt-1' })
+	assert.equal((await h.call('/api/sidechat.read', { sessionId })).body.stream, undefined)
+	h.state.events.get('agent/error')({ agent, error: new Error('provider unavailable') })
+	assert.equal((await h.call('/api/sidechat.read', { sessionId })).body.error, 'provider unavailable')
 })

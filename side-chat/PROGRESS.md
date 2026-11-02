@@ -1,5 +1,13 @@
 # dsh-side-chat v0.2 进展交接（给接手的 agent）
 
+> **后续排查（2026-11-02，尚未完成真机验收）**：用户已确认「打开侧聊后空白、没有输入框」，画面可见 banner 与结束按钮。**根因已定位：原生日志读取接口不支持无 cwd 会话。**
+> 新增错误提示后，真机显示 `侧聊加载失败：session "session-54d62add-f066-4f44-a47f-7f716f3dc143" not found`。真实 asar 中 `dsh-api-session-controller` 的日志读取 `sourceFor()` 在 `observeSession()` 之后无条件检查 `observation.header.cwd`，缺失即拒绝；该规则也作用于 live 会话。因此 §4 的 Host 建会话/Agent 冒烟通过不能证明 Client 可读，这也否定了原方案直接复用 `conversation.content` 的可行性。
+> 原生 DevTools（F12）的 Console 捕获到 `Identifier 'PAGE_UNLOAD' has already been declared`；已移除 `client.js` 顶层未使用常量，并增加同 realm 连续加载两次的回归测试。
+> 用户已确认改用插件聊天面板：现已移除子 Session retain 和原生 conversation.content 接入，新增 read/send/cancel 接口、输入框、流式文本、停止与错误提示；生命周期保持不变。**28 条单测通过**，真实服务栈通过插件接口验证发送/回复、最新主会话日志注入与隐藏上下文过滤；真机已确认输入框、主会话连接状态与用户消息送达；模型测试回合被关闭面板中断，完整回答/页面刷新/关闭重开仍待真机验收。UI 已按主页面主题改造并复用原生 MarkdownText。
+> 安装版的 Cmd+R 不可靠：桌面源码仅在 development 模式提供 reload 菜单。可从原生 DevTools Console 执行 `location.reload()`。内置 NodeJS 诊断面板的 Client ingest WebSocket 当前连接失败，不能据该面板「无错误」排除 Client 问题。
+
+## 以下为 18:25 原始交接记录（当前状态以上述更新为准）
+
 > 更新时间：2026-11-02 18:25（Asia/Shanghai）
 > 分支：`feat/side-chat-lifecycle-context`，最后代码提交：`de4f0b7`（本地，**未 push**）
 > 一句话结论：**Host 侧已实现并在真机验证通过；Client 侧在真机上未达到预期，用户反馈「功能没有实现」，根因尚未定位。**

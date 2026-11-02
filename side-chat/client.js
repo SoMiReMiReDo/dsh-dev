@@ -3,8 +3,8 @@
  *
  * Registers the right-Sidebar tab type that shows an in-memory side
  * conversation, plus the conversation-header action that creates one. The body
- * is the product's own `conversation.content` factory, so the panel keeps the
- * native transcript, composer, streaming, and queue behaviour.
+ * uses a plugin-owned transcript and composer with a registry-scoped transport.
+ * Ordinary Session history APIs reject the deliberately cwd-less child.
  *
  * Differences from v0.1.x:
  * - No inherited history: the child session starts empty, so the transcript
@@ -15,8 +15,6 @@
  * - Restored tabs whose side conversation no longer exists close themselves.
  * - Live side conversations are hidden from the workspace session list.
  */
-
-const PAGE_UNLOAD = Symbol('side-chat: page unload')
 
 window.__ModuleLoader__.load({
 	id: 'dsh-side-chat',
@@ -39,9 +37,6 @@ window.__ModuleLoader__.load({
 
 		/** Resource pattern matched by the tab type (kept broad for restored tabs). */
 		const PROTOCOL_PATTERN = 'dsh-resource://sidechat/'
-
-		/** Session-scoped child slot the tab body binds before rendering the conversation. */
-		const CONVERSATION_SLOT = 'sidebar.sidechat.conversation'
 
 		/** Route that creates or reuses a side conversation on the Host. */
 		const OPEN_ROUTE = '/api/sidechat.open'
@@ -76,7 +71,24 @@ window.__ModuleLoader__.load({
 			'banner.hint': '关闭此标签页即结束侧聊',
 			'banner.finish': '结束侧聊',
 			'state.opening': '正在创建侧聊…',
-			'state.missing': '侧聊会话不可用'
+			'state.missing': '侧聊会话不可用',
+			'chat.you': '你',
+			'chat.assistant': '侧聊',
+			'chat.connecting': '正在连接侧聊…',
+			'chat.context': '已连接主会话',
+			'chat.contextDetails': '{count} 条上下文记录 · 提问时读取最新内容',
+			'chat.empty': '可以直接询问主会话中的内容，不必等待主会话结束。',
+			'chat.running': '正在回复…',
+			'chat.placeholder': '询问主会话中的内容…',
+			'chat.send': '发送',
+			'chat.stop': '停止',
+			'chat.readonly': '只读',
+			'chat.copy': '复制',
+			'chat.copied': '已复制',
+			'chat.code': '代码',
+			'chat.wrap': '自动换行',
+			'chat.unwrap': '取消换行',
+			'chat.footnotes': '脚注'
 		}
 
 		const en = {
@@ -92,7 +104,24 @@ window.__ModuleLoader__.load({
 			'banner.hint': 'Closing this tab ends the side chat',
 			'banner.finish': 'End side chat',
 			'state.opening': 'Starting the side chat…',
-			'state.missing': 'The side chat session is unavailable'
+			'state.missing': 'The side chat session is unavailable',
+			'chat.you': 'You',
+			'chat.assistant': 'Side chat',
+			'chat.connecting': 'Connecting…',
+			'chat.context': 'Main chat connected',
+			'chat.contextDetails': '{count} context records · refreshed with each question',
+			'chat.empty': 'Ask about the main conversation, even while it is running.',
+			'chat.running': 'Replying…',
+			'chat.placeholder': 'Ask about the main chat…',
+			'chat.send': 'Send',
+			'chat.stop': 'Stop',
+			'chat.readonly': 'Read-only',
+			'chat.copy': 'Copy',
+			'chat.copied': 'Copied',
+			'chat.code': 'Code',
+			'chat.wrap': 'Wrap',
+			'chat.unwrap': 'Unwrap',
+			'chat.footnotes': 'Footnotes'
 		}
 
 		/**
@@ -135,11 +164,12 @@ window.__ModuleLoader__.load({
 		 * @param body - JSON-serializable body.
 		 * @returns the parsed response payload.
 		 */
-		async function post(path, body) {
+		async function post(path, body, signal) {
 			const response = await fetch(path, {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify(body)
+				body: JSON.stringify(body),
+				signal
 			})
 			const payload = await response.json().catch(() => undefined)
 			if (!response.ok) throw new Error(payload?.error?.message ?? `HTTP ${response.status}`)
@@ -211,20 +241,19 @@ window.__ModuleLoader__.load({
 		}
 
 		/**
-		 * Hold one side conversation's Session reference for as long as a tab shows it.
+		 * Hold the side-chat resource for as long as a tab record exists.
 		 *
 		 * A tab whose side conversation is gone (Host restarted) resolves a stale
 		 * value so the tab body can close itself. A tab that is removed while the
 		 * document is not unloading disposes the Host Agent: closing the panel ends
 		 * the side conversation.
 		 *
-		 * @param sessions - Client Session service.
 		 * @param index - live side-conversation index.
 		 * @param liveIds - reads the Host's current live ids.
 		 * @param onClosed - idempotent Host close + session-list refresh for one child.
 		 * @returns the resource provider to register.
 		 */
-		function sideChatResource(sessions, index, liveIds, onClosed) {
+		function sideChatResource(index, liveIds, onClosed) {
 			return {
 				protocol: PROTOCOL,
 				async *open(resourceAddress, { signal }) {
@@ -248,15 +277,13 @@ window.__ModuleLoader__.load({
 						return
 					}
 					index.add(parsed.childId)
-					const reference = sessions.retain(parsed.childId, { source: 'sideChat', signal })
 					try {
-						yield { ok: true, value: { ...parsed, reference, stale: false } }
+						yield { ok: true, value: { ...parsed, stale: false } }
 						await new Promise((resolve) => {
 							if (signal.aborted) resolve()
 							else signal.addEventListener('abort', () => resolve(), { once: true })
 						})
 					} finally {
-						reference.release()
 						if (!unloading) {
 							// Closing the tab ends the side conversation. Keep the row hidden
 							// until the refreshed session list no longer contains it.
@@ -271,28 +298,116 @@ window.__ModuleLoader__.load({
 			}
 		}
 
-		/** The embedded conversation's fixed View: Chat, without the main header. */
-		function FixedChatView(props) {
-			return h(React.Fragment, null, props.renderSlot('conversation.session', { view: 'chat' }))
-		}
-
-		/**
-		 * Render the shared Conversation for the side conversation bound by SessionProvider.
-		 *
-		 * The side conversation starts blank, so it skips the hero screen: the
-		 * banner explains what the panel is and the composer is immediately usable.
-		 */
-		function SideChatConversation({ sessionId, useSession, useConversation, renderFactorySlot }) {
-			const session = useSession((value) => value)
-			const conversation = useConversation((value) => value)
-			const shellPhase = conversation.activeTargets.size > 0 || (!session.blank && !session.awaitingFirstTurn) || session.running
-				? 'active'
-				: session.promptAttempted ? 'engaging' : 'blank'
-			return renderFactorySlot('conversation.content', {
-				variant: 'embedded',
-				phase: shellPhase === 'blank' && session.openState !== 'open' ? 'settling' : 'active',
-				hero: false
-			}, { slots: { views: FixedChatView } })
+		/** Independent chat surface: ordinary Session APIs reject cwd-less agents. */
+		function SideChatConversation({ sessionId, t }) {
+			const [snapshot, setSnapshot] = React.useState(undefined)
+			const [draft, setDraft] = React.useState('')
+			const [sending, setSending] = React.useState(false)
+			const [error, setError] = React.useState(undefined)
+			const [copied, setCopied] = React.useState(undefined)
+			const scroll = React.useRef(null)
+			const editor = React.useRef(null)
+			const sendingRef = React.useRef(false)
+			const nearBottom = React.useRef(true)
+			React.useEffect(() => {
+				const controller = new AbortController()
+				let timer
+				async function poll() {
+					let busy = false
+					try {
+						const value = await post('/api/sidechat.read', { sessionId }, controller.signal)
+						if (controller.signal.aborted) return
+						setSnapshot(value)
+						setError(value.error)
+						busy = value.running
+					} catch (error) {
+						if (!controller.signal.aborted) setError(error.message)
+					} finally {
+						if (!controller.signal.aborted) timer = setTimeout(poll, busy ? 350 : 1500)
+					}
+				}
+				void poll()
+				return () => { controller.abort(); clearTimeout(timer) }
+			}, [sessionId])
+			React.useEffect(() => {
+				if (scroll.current && nearBottom.current) scroll.current.scrollTop = scroll.current.scrollHeight
+			}, [snapshot])
+			React.useEffect(() => {
+				if (!editor.current) return
+				editor.current.style.height = 'auto'
+				editor.current.style.height = `${Math.min(336, editor.current.scrollHeight)}px`
+			}, [draft])
+			async function send() {
+				if (sendingRef.current || snapshot?.running || !draft.trim() || snapshot === undefined) return
+				sendingRef.current = true
+				setSending(true)
+				setError(undefined)
+				try {
+					await post('/api/sidechat.send', { sessionId, text: draft, requestId: crypto.randomUUID() })
+					setDraft((current) => current === draft ? '' : current)
+					nearBottom.current = true
+					setSnapshot(await post('/api/sidechat.read', { sessionId }))
+				} catch (error) { setError(error.message) }
+				finally { sendingRef.current = false; setSending(false) }
+			}
+			const busy = sending || snapshot?.running === true
+			const messages = snapshot?.messages ?? []
+			const markdownLabels = {
+				code: { copyLabel: t('chat.copy'), copiedLabel: t('chat.copied'), toolbarLabels: { codeLabel: t('chat.code'), wrapLabel: t('chat.wrap'), unwrapLabel: t('chat.unwrap') } },
+				footnotes: t('chat.footnotes')
+			}
+			const bubble = (message, key, streaming = false) => h('article', {
+				key,
+				'data-side-chat-message': message.role,
+				style: { display: 'flex', flexDirection: 'column', alignItems: message.role === 'user' ? 'flex-end' : 'stretch', margin: '16px 0 24px', minWidth: 0 }
+			}, message.role === 'user'
+				? h('div', { style: { maxWidth: '82%', boxSizing: 'border-box', padding: '10px 16px', borderRadius: 'var(--dsw-radius-xl, 16px)', background: 'var(--dsw-specific-bubble)', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', lineHeight: 'calc(22px + var(--dsh-content-font-delta, 0px))' } }, message.text)
+				: [
+					primitives.MarkdownText
+						? h(primitives.MarkdownText, { key: 'text', text: message.text, streaming, labels: markdownLabels })
+						: h('div', { key: 'text', style: { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', lineHeight: 1.65 } }, message.text),
+					streaming ? null : h('button', {
+						key: 'copy', type: 'button', 'aria-label': t(copied === key ? 'chat.copied' : 'chat.copy'), title: t(copied === key ? 'chat.copied' : 'chat.copy'),
+						onClick: () => navigator.clipboard.writeText(message.text).then(() => setCopied(key), (error) => setError(error.message)),
+						style: { display: 'flex', alignItems: 'center', alignSelf: 'flex-start', marginTop: 12, padding: 4, border: 0, borderRadius: 'var(--dsw-radius-sm)', background: 'transparent', color: 'var(--dsw-alias-label-tertiary)', cursor: 'pointer' }
+					}, copied === key ? t('chat.copied') : h('svg', { width: 16, height: 16, viewBox: '0 0 16 16', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, 'aria-hidden': true }, [
+						h('rect', { key: 'back', x: 2, y: 5, width: 9, height: 9, rx: 2 }),
+						h('path', { key: 'front', d: 'M5 5V4a2 2 0 012-2h5a2 2 0 012 2v5a2 2 0 01-2 2h-1' })
+					]))
+				])
+			const disabled = !busy && (snapshot === undefined || !draft.trim())
+			return h('div', {
+				'data-side-chat-conversation': '',
+				style: { display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, minHeight: 0, color: 'var(--dsw-alias-label-primary)', background: 'var(--dsw-alias-bg-base)', fontSize: 'var(--dsh-content-font-size, 14px)' }
+			}, [
+				h('div', { key: 'context', role: 'status', title: snapshot === undefined ? undefined : t('chat.contextDetails', { count: snapshot.contextMessages }), style: { padding: '12px 24px 4px', fontSize: 'var(--dsh-content-font-size-secondary, 12px)', color: 'var(--dsw-alias-label-tertiary)' } }, snapshot === undefined ? t('chat.connecting') : t('chat.context')),
+				h('div', { key: 'messages', ref: scroll, 'aria-live': 'polite', style: { flex: 1, minHeight: 0, overflowY: 'auto', padding: '0 24px 12px' }, onScroll: () => {
+					const el = scroll.current
+					if (el) nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+				} }, [
+					messages.length === 0 ? h('p', { key: 'empty', style: { margin: '24px 0', color: 'var(--dsw-alias-label-tertiary)', fontSize: 'var(--dsh-content-font-size-secondary, 13px)', lineHeight: 1.7 } }, t('chat.empty')) : null,
+					...messages.map((message, index) => bubble(message, message.id ?? index)),
+					snapshot?.stream?.text ? bubble({ role: 'assistant', text: snapshot.stream.text }, 'stream', true) : null,
+					busy ? h('div', { key: 'busy', role: 'status', style: { padding: '8px 0', color: 'var(--dsw-alias-label-deep-diving)', fontSize: 'var(--dsh-content-font-size-secondary, 13px)' } }, t('chat.running')) : null
+				]),
+				error ? h('div', { key: 'error', role: 'alert', style: { padding: '8px 24px', color: 'var(--dsw-alias-state-danger-primary, #ef7777)', overflowWrap: 'anywhere' } }, error) : null,
+				h('form', { key: 'composer', 'data-side-chat-composer': '', onSubmit: (event) => { event.preventDefault(); void send() }, style: { flex: 'none', margin: '8px 8px 12px', borderRadius: 'var(--dsw-radius-panel, 20px)', background: 'var(--dsw-specific-input-major)', boxShadow: 'var(--dsw-elevation-soft)', paddingTop: 8 } }, [
+					h('textarea', { key: 'input', ref: editor, 'aria-label': t('chat.placeholder'), placeholder: t('chat.placeholder'), value: draft, maxLength: 16000, rows: 2,
+						onChange: (event) => setDraft(event.target.value), onKeyDown: (event) => {
+							if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent?.isComposing && !event.isComposing && event.keyCode !== 229) { event.preventDefault(); void send() }
+						}, style: { display: 'block', boxSizing: 'border-box', width: '100%', resize: 'none', minHeight: 52, maxHeight: 336, padding: '6px 14px', border: 0, outline: 'none', background: 'transparent', color: 'inherit', font: 'inherit', lineHeight: 'calc(24px + var(--dsh-content-font-delta, 0px))' } }),
+					h('div', { key: 'actions', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '6px 8px 6px 14px' } }, [
+						h('span', { key: 'mode', style: { color: 'var(--dsw-alias-label-secondary)', fontSize: 13 } }, t('chat.readonly')),
+						h('button', {
+							key: 'primary', type: busy ? 'button' : 'submit', 'aria-label': t(busy ? 'chat.stop' : 'chat.send'), title: t(busy ? 'chat.stop' : 'chat.send'), disabled,
+							onClick: busy ? () => { post('/api/sidechat.cancel', { sessionId }).catch((error) => setError(error.message)) } : undefined,
+							style: { width: 34, height: 34, flex: 'none', display: 'grid', placeItems: 'center', border: 0, borderRadius: 999, padding: 0, cursor: disabled ? 'default' : 'pointer', background: 'var(--dsw-alias-button-info-fill)', color: '#fff', opacity: disabled ? 0.4 : 1, transform: 'translateY(-2px)' }
+						}, h('svg', { width: 16, height: 16, viewBox: '0 0 16 16', 'aria-hidden': true }, busy
+							? h('rect', { x: 3, y: 3, width: 10, height: 10, rx: 3, fill: 'currentColor' })
+							: h('path', { d: 'M8 2v12M3 7l5-5 5 5', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' })))
+					])
+				])
+			])
 		}
 
 		/** Slim strip above the embedded conversation: identity and end. */
@@ -347,7 +462,7 @@ window.__ModuleLoader__.load({
 		 * Right-Sidebar tab body: bind the side conversation, then render banner + conversation.
 		 * @param props - slot kit props plus the injected close and finish actions.
 		 */
-		function SideChatTab({ useResource, useTabInfo, SessionProvider, renderSlot, t, closeTab, finish }) {
+		function SideChatTab({ useResource, useTabInfo, t, closeTab, finish }) {
 			const { tab } = useTabInfo()
 			const resource = useResource(tab.contentId)
 			const value = resource.value
@@ -374,10 +489,7 @@ window.__ModuleLoader__.load({
 					? h('div', { style: { padding: 12, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)' } }, stale ? t('state.missing') : t('state.opening'))
 					: stale
 						? h('div', { style: { padding: 12, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)' } }, t('state.missing'))
-						: h(SessionProvider, {
-							session: value.reference,
-							children: renderSlot(CONVERSATION_SLOT, {})
-						}))
+						: h(SideChatConversation, { key: value.childId, sessionId: value.childId, t }))
 			])
 		}
 
@@ -429,6 +541,7 @@ window.__ModuleLoader__.load({
 		 */
 		function apply(ctx) {
 			const t = ctx.locale.bind(NS)
+			const sessions = ctx.sessions
 			const index = createSideChatIndex()
 			ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'side-chat: dictionaries')
 			ctx.effect(() => () => index.dispose(), 'side-chat: live index')
@@ -486,7 +599,7 @@ window.__ModuleLoader__.load({
 					console.warn('side-chat: close failed:', error)
 				}
 				index.delete(sessionId)
-				await Promise.resolve(ctx.sessions.refresh()).catch((error) => {
+				await Promise.resolve().then(() => sessions.refresh()).catch((error) => {
 					console.warn('side-chat: session list refresh failed:', error)
 				})
 			}
@@ -504,7 +617,7 @@ window.__ModuleLoader__.load({
 				}
 			}
 
-			ctx.effect(() => ctx.resources.register(sideChatResource(ctx.sessions, index, liveIds, closeOnHost)), 'side-chat: resource owner')
+			ctx.effect(() => ctx.resources.register(sideChatResource(index, liveIds, closeOnHost)), 'side-chat: resource owner')
 
 			ctx.effect(() => ctx.sidebarRightTabs.register({
 				id: ID,
@@ -525,13 +638,8 @@ window.__ModuleLoader__.load({
 				name: 'sidebar.right.pane.tab',
 				key: ID,
 				locale: NS,
-				children: { [CONVERSATION_SLOT]: { kind: 'single', scope: 'session' } },
 				inject: () => ({ closeTab: (tabId) => ctx.sidebarRight.close(tabId), finish: finishSideChat })
 			}, SideChatTab)), 'side-chat: tab body')
-
-			ctx.effect(() => ctx.slots.inject(CONVERSATION_SLOT, () => ctx.slots.register({
-				name: CONVERSATION_SLOT
-			}, SideChatConversation)), 'side-chat: conversation body')
 
 			ctx.effect(() => ctx.slots.inject('conversation.session.header.actions', () => ctx.slots.register({
 				name: 'conversation.session.header.actions',

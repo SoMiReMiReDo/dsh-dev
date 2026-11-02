@@ -65,7 +65,9 @@ root.provide('llm', {
 	async prepareCall(config) {
 		return {
 			config,
-			async *stream() {}
+			async *stream() {
+				yield { type: 'text-delta', index: 0, text: 'test assistant reply' }
+			}
 		}
 	}
 })
@@ -139,13 +141,22 @@ if (header.isSeeded !== false) fail('child must not be seeded')
 if (header.parentSession !== 'session-parent') fail('child must name its parent session')
 if (child.session.deriveMessages().length !== 0) fail('fresh child must start with zero model-visible messages')
 
-child.followup({
-	id: crypto.randomUUID(),
-	role: 'user',
-	content: [{ type: 'text', text: 'side question' }],
-	source: { kind: 'user' }
-})
+async function chatRoute(operation, body) {
+	const response = await routes.get(`/api/sidechat.${operation}`)({ async text() { return JSON.stringify(body) } })
+	const result = await response.json()
+	if (response.status !== 200) fail(`${operation} failed: ${JSON.stringify(result)}`)
+	return result
+}
+const initial = await chatRoute('read', { sessionId: childId })
+if (initial.messages.length !== 0 || initial.contextMessages < 1) fail('opening must read parent context and expose an empty side transcript')
+await chatRoute('send', { sessionId: childId, text: 'side question', requestId: crypto.randomUUID() })
 await child.whenIdle()
+
+const visible = await chatRoute('read', { sessionId: childId })
+if (!visible.messages.some((message) => message.role === 'user' && message.text === 'side question')) fail('side prompt did not reach the real Agent')
+if (!visible.messages.some((message) => message.role === 'assistant' && message.text === 'test assistant reply')) fail('side reply is not visible through the plugin transport')
+if (visible.messages.some((message) => message.text.includes('Live main-conversation'))) fail('hidden context leaked into the panel')
+log('plugin chat transport: prompt, reply, parent-context status OK')
 
 const events = child.session.snapshotEvents()
 const injections = events.filter((event) => event.type === 'user/message' && event.data?.source?.kind === 'side-chat-context')
@@ -164,6 +175,14 @@ const parentSystem = parent.agent.session
 	.filter((event) => event.type === 'system/message')
 	.map((event) => event.data.message.content[0]?.text ?? '')
 if (parentSystem.some((text) => text.includes('Side conversation boundary.'))) fail('boundary leaked into the main conversation')
+
+parent.agent.followup({ id: crypto.randomUUID(), role: 'user', content: [{ type: 'text', text: 'new parent detail after side chat opened' }], source: { kind: 'user' } })
+await parent.agent.whenIdle()
+await chatRoute('send', { sessionId: childId, text: 'what changed?', requestId: crypto.randomUUID() })
+await child.whenIdle()
+const updatedInjections = child.session.snapshotEvents().filter((event) => event.type === 'user/message' && event.data?.source?.kind === 'side-chat-context')
+if (updatedInjections.length !== 2 || !updatedInjections.at(-1).data.content[0].text.includes('new parent detail after side chat opened')) fail('a later side prompt did not receive the updated parent log')
+log('second prompt: latest parent log injected OK')
 
 const closed = await routes.get('/api/sidechat.close')({
 	async text() {

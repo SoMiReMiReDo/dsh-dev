@@ -1,8 +1,19 @@
 # side-chat 交接文档（v0.2）
 
-> ⚠️ **当前状态（2026-11-02 18:25）**：Host 侧已通过假 ctx 单测 + 真实服务栈冒烟 + 真机 HTTP 实测；
-> Client 侧在真机上未达预期（用户反馈「功能没有实现」），根因未定位。
-> 接手前请先读 [PROGRESS.md](PROGRESS.md)（进展、证据、故障与下一步）。
+## 当前实现（2026-11-02 修复）
+
+原生 `session.follow` 会拒绝没有 `header.cwd` 的会话，即使 Agent 仍在运行；原方案的 `SessionProvider → conversation.content` 因而不可用。用户已选择保留临时生命周期，改用插件自己的聊天面板。
+
+- Client 不再 retain 子 Session，直接展示输入框、Markdown 消息、流式文本和停止按钮；Enter 发送，Shift+Enter 换行，支持中文输入法。
+- 新增认证 POST 接口，仅接受进程内 registry 的侧聊 id：`sidechat.read` 返回侧聊消息、运行/错误状态、流式文本与主会话上下文数量；`sidechat.send` 接收 `sessionId/text/requestId`，经 Agent.followup 发起回合；`sidechat.cancel` 停止当前回合。
+- `send` 对 requestId 去重，运行中拒绝第二个请求。`read` 排除 system、隐藏上下文和推理块，展示最近 100 条有文本的消息。
+- Client 在回复中每 350ms、空闲时每 1500ms 拉取状态，卸载时停止拉取。回复复用原生 `MarkdownText`（含代码块），用户气泡、输入卡片与圆形发送/停止按钮使用主页面相同的主题变量与尺寸；提供回复复制。暂不提供附件、消息队列和工具审批界面。
+- 关闭销毁、刷新保留、重启消失、只读和每次请求实时注入主会话日志的语义不变。主会话尚未落盘的流式输出仍不在上下文中；冷主会话支持仍为后续工作。
+- `node --test test/*.test.mjs`：28 条通过。真实服务栈冒烟已改为走插件 read/send 接口，并验证第二次提问读到主会话新日志、消息过滤和销毁后 header 仍无 cwd。
+- Host 接口改动需重启应用加载。安装版 Cmd+R 可能无效；可从 F12 原生 DevTools Console 执行 `location.reload()`。插件脚本顶层未使用的 PAGE_UNLOAD 常量已移除，避免热更新重复声明。
+- 真机验收状态见 [PROGRESS.md](PROGRESS.md)。未 push。
+
+## 原始 v0.2 方案记录（以下原生 UI 接入部分已被上述实现替代）
 
 > 插件包名 `dsh-side-chat`，版本 `0.2.0`，位于 `/Users/seal/Desktop/myNote/dsh-dev/side-chat`。
 > v0.2 是一次架构重写：侧聊**不再是 fork 出来的持久 session**，而是「点击创建、关闭即销毁、重启即消失」的内存态会话，上下文**每次请求实时读取主会话日志**构建。
