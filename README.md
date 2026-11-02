@@ -2,6 +2,12 @@
 
 DeepSeek Harness 相关开发的仓库。
 
+## 当前状态（2026-11-02）
+
+- v0.2 Host 侧已实现并验证（22 条假 ctx 单测 + 真实服务栈冒烟 + 真机 HTTP 路由实测）；
+- Client 侧真机未达预期（用户反馈「功能没有实现」），根因未定位，代码**未 push**；
+- 接手请先读 [`side-chat/PROGRESS.md`](side-chat/PROGRESS.md)（进展、证据、调试手段、下一步）。
+
 ## 布局
 
 - `side-chat/` — 侧边聊天插件（v0.2，内存态只读旁路 + 实时上下文）

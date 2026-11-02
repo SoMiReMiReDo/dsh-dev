@@ -1,5 +1,9 @@
 # side-chat 交接文档（v0.2）
 
+> ⚠️ **当前状态（2026-11-02 18:25）**：Host 侧已通过假 ctx 单测 + 真实服务栈冒烟 + 真机 HTTP 实测；
+> Client 侧在真机上未达预期（用户反馈「功能没有实现」），根因未定位。
+> 接手前请先读 [PROGRESS.md](PROGRESS.md)（进展、证据、故障与下一步）。
+
 > 插件包名 `dsh-side-chat`，版本 `0.2.0`，位于 `/Users/seal/Desktop/myNote/dsh-dev/side-chat`。
 > v0.2 是一次架构重写：侧聊**不再是 fork 出来的持久 session**，而是「点击创建、关闭即销毁、重启即消失」的内存态会话，上下文**每次请求实时读取主会话日志**构建。
 > v0.1.1 的 fork 方案与本文附录 §11 对照。
@@ -24,7 +28,7 @@
 |---|---|
 | 版本 | 0.2.0（与 0.1.x 语义不兼容：侧聊不可恢复、不再是 fork） |
 | 安装方式 | desktop profile 的 `link:` 依赖 |
-| 激活状态 | Host 改动需要重启应用后生效；Client 改动刷新页面 |
+| 激活状态 | Host 改动需要重启应用后生效；Client 改动刷新页面；Client 真机交互未通过验收（见 PROGRESS.md） |
 | 测试 | `node --test side-chat/test/*.test.mjs`（21 条假 ctx / 假 Client 用例） |
 | 生效规则 | `client.js` 刷新页面；`index.js` / patch 重启应用 |
 
