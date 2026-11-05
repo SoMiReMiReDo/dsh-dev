@@ -1,0 +1,37 @@
+{
+	"code": 0,
+	"success": true,
+	"data": {
+		"notifications": [
+			{
+				"id": "n1",
+				"category": "like",
+				"title": "赞了你的笔记",
+				"content": "山野小满 赞了你的笔记",
+				"user_info": {
+					"user_id": "u1",
+					"nickname": "山野小满"
+				},
+				"note_id": "note-1",
+				"create_time": 1727700000000
+			},
+			{
+				"id": "n2",
+				"category": "comment",
+				"title": "评论了你的笔记",
+				"content": "求清单链接",
+				"user_info": {
+					"user_id": "u2",
+					"nickname": "路过的猫"
+				},
+				"note_id": "note-1",
+				"time": 1727701000000
+			},
+			{
+				"title": "缺 id 的通知",
+				"content": "系统消息",
+				"create_time": 1727702000000
+			}
+		]
+	}
+}

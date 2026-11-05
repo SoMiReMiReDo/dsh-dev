@@ -1,0 +1,7 @@
+# Bundle patch layer for dsh-xhs-check.
+# The row loads this package's main entry as the Host half; the package's
+# `dsh.client` declaration makes the web app load ./client.js as the browser
+# half once the listed client plugins are up.
+- insert:
+    - id: xhs-check
+      name: dsh-xhs-check

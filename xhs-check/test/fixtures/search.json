@@ -1,0 +1,76 @@
+{
+	"code": 0,
+	"success": true,
+	"data": {
+		"has_more": true,
+		"cursor": "cursor-search-1",
+		"items": [
+			{
+				"id": "feed-search-1",
+				"model_type": "note",
+				"xsec_token": "SEARCHtoken1",
+				"note_card": {
+					"note_id": "note-search-1",
+					"type": "normal",
+					"display_title": "上海咖啡地图｜12 家私藏小店",
+					"desc": "整理了 12 家，按街区排好了。",
+					"user": {
+						"user_id": "u3",
+						"nickname": "咖啡地图君",
+						"avatar": "https://avatar.example.com/avatar/map.jpg"
+					},
+					"interact_info": {
+						"liked_count": "980",
+						"collected_count": "120",
+						"comment_count": "12",
+						"share_count": "3"
+					},
+					"image_list": [
+						{
+							"url_default": "https://img.example.com/spectrum/map-1.jpg",
+							"width": 1080,
+							"height": 1080
+						}
+					],
+					"tag_list": [],
+					"time": 1727500000000,
+					"ip_location": "上海"
+				}
+			},
+			{
+				"id": "feed-search-2",
+				"model_type": "note",
+				"note_card": {
+					"note_id": "note-search-2",
+					"type": "normal",
+					"display_title": "咖啡豆保存的 5 个细节",
+					"desc": "避光、密封、别放冰箱。",
+					"user": {
+						"user_id": "u2",
+						"nickname": "咖啡阿哲"
+					},
+					"interact_info": {
+						"liked_count": "233",
+						"collected_count": "45",
+						"comment_count": "6",
+						"share_count": "1"
+					},
+					"image_list": [
+						{
+							"url_pre": "https://img.example.com/spectrum/bean-pre.jpg",
+							"width": 1080,
+							"height": 1440
+						}
+					],
+					"tag_list": [
+						{
+							"name": "咖啡",
+							"type": "topic"
+						}
+					],
+					"time": 1727510000000
+				}
+			}
+		]
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"code": 0,
+	"success": true,
+	"data": {
+		"foo": {
+			"bar": [
+				1,
+				2,
+				3
+			]
+		},
+		"baz": {
+			"qux": "nothing that looks like a message"
+		},
+		"empty_list": []
+	}
+}

@@ -1,0 +1,45 @@
+{
+	"code": 0,
+	"success": true,
+	"data": {
+		"session_id": "conv-1",
+		"messages": [
+			{
+				"message_id": "m1",
+				"sender": {
+					"user_id": "u1",
+					"nickname": "山野小满",
+					"avatar": "https://avatar.example.com/avatar/u1.jpg"
+				},
+				"content": "你好，露营灯还有吗？",
+				"create_time": 1727600000000,
+				"message_type": "text"
+			},
+			{
+				"message_id": "m2",
+				"sender": {
+					"user_id": "u2",
+					"nickname": "咖啡阿哲"
+				},
+				"content": {
+					"text": "有的，还剩两个"
+				},
+				"create_time": 1727600060000,
+				"message_type": "text",
+				"images": [
+					"https://img.example.com/dm/1.jpg"
+				]
+			},
+			{
+				"message_id": "m3",
+				"from_user": {
+					"user_id": "u1",
+					"nickname": "山野小满"
+				},
+				"text": "那我要一个",
+				"time": 1727600120000,
+				"msg_type": "text"
+			}
+		]
+	}
+}

@@ -1,0 +1,67 @@
+{
+	"code": 0,
+	"success": true,
+	"data": {
+		"cursor": "cursor-comment-1",
+		"has_more": true,
+		"comments": [
+			{
+				"id": "c1",
+				"content": "这套清单太实用了！",
+				"create_time": 1727180100000,
+				"ip_location": "广东",
+				"user_info": {
+					"user_id": "user-a",
+					"nickname": "露营小白",
+					"image": "https://avatar.example.com/avatar/a.jpg"
+				},
+				"like_count": "1.2万",
+				"sub_comment_count": "3",
+				"sub_comment_cursor": "sub-cursor-1",
+				"sub_comment_has_more": true,
+				"sub_comments": [
+					{
+						"id": "c1-1",
+						"content": "同意，已下单",
+						"create_time": 1727180200000,
+						"ip_location": "江苏",
+						"user_info": {
+							"user_id": "user-b",
+							"nickname": "买买买",
+							"image": "https://avatar.example.com/avatar/b.jpg"
+						},
+						"like_count": "23",
+						"sub_comment_count": "0"
+					},
+					{
+						"id": "c1-2",
+						"content": "楼主回复：记得买天幕",
+						"create_time": 1727180300000,
+						"ip_location": "浙江",
+						"user_info": {
+							"user_id": "user-c",
+							"nickname": "山野小满"
+						},
+						"like_count": 4
+					}
+				]
+			},
+			{
+				"id": "c2",
+				"content": "求链接",
+				"create_time": 1727180400000,
+				"user_info": {
+					"user_id": "user-d",
+					"nickname": "路过的猫"
+				},
+				"like_count": 0,
+				"sub_comment_count": 0,
+				"sub_comments": []
+			},
+			{
+				"id": "c3",
+				"content": ""
+			}
+		]
+	}
+}

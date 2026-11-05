@@ -1,0 +1,16 @@
+{
+	"code": 0,
+	"success": true,
+	"data": {
+		"guest": false,
+		"user_id": "5f1e2d3c4b5a69788796a5b4",
+		"user": {
+			"user_id": "5f1e2d3c4b5a69788796a5b4",
+			"nickname": "山野小满",
+			"image": "https://avatar.example.com/avatar/me.jpg",
+			"desc": "爱露营，也爱咖啡",
+			"red_id": "123456789",
+			"ip_location": "浙江"
+		}
+	}
+}

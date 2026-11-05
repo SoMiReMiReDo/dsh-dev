@@ -1,0 +1,22 @@
+{
+	"code": 0,
+	"success": true,
+	"data": {
+		"cursor": "",
+		"has_more": false,
+		"comments": [
+			{
+				"id": "c1-3",
+				"content": "楼中楼第三条",
+				"create_time": 1727180500000,
+				"ip_location": "四川",
+				"user_info": {
+					"user_id": "user-e",
+					"nickname": "成都娃"
+				},
+				"like_count": "0",
+				"sub_comment_count": "0"
+			}
+		]
+	}
+}

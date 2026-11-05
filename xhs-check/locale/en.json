@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Xiaohongshu collector",
+    "description": "Collects Xiaohongshu notes, comments, search results, profiles and private messages inside the DSH built-in browser (or Chrome over CDP when backend=cdp) into structured JSON."
+  }
+}

@@ -1,0 +1,16 @@
+# Bundle patch layer for dsh-inner-chrome.
+#
+# The row loads this package's main entry as the Host half; the package's
+# `dsh.client` declaration makes the web app load ./client.js as the browser
+# half once the listed client plugins are up.
+#
+# `ui-sidebar-browser` is enabled so the product keeps its Browser guide card
+# and its "Open chat links in" preference; this bundle's Client half registers
+# an `extension`-priority tab type on kind `browser` and therefore takes that
+# page over. If this plugin is removed, the shipped builtin resumes.
+- id: ui-sidebar-browser
+  disabled: false
+
+- insert:
+    - id: inner-chrome
+      name: dsh-inner-chrome

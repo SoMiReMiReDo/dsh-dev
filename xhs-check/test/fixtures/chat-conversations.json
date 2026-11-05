@@ -1,0 +1,29 @@
+{
+	"code": 0,
+	"success": true,
+	"data": {
+		"sessions": [
+			{
+				"session_id": "conv-1",
+				"user_info": {
+					"user_id": "u1",
+					"nickname": "山野小满",
+					"image": "https://avatar.example.com/avatar/u1.jpg"
+				},
+				"last_message": "那我要一个",
+				"unread_count": 2,
+				"update_time": 1727600200000
+			},
+			{
+				"chat_id": "conv-2",
+				"to_user": {
+					"user_id": "u2",
+					"nickname": "咖啡阿哲"
+				},
+				"last_message": "改天一起喝咖啡",
+				"unread_count": "0",
+				"update_time": 1727500000000
+			}
+		]
+	}
+}

@@ -1,0 +1,9 @@
+# 采集产物、本地配置和放在插件目录内的 Chrome 登录状态
+/data/
+/settings.json
+/chrome-profile/
+
+# 本地依赖、日志和系统文件
+node_modules/
+*.log
+.DS_Store
