@@ -924,6 +924,19 @@ test('normalizeCommandArgs accepts eval/close and clamps eval timeouts', () => {
   assert.deepEqual(normalizeCommandArgs('close', { tabId: ' tab-1 ' }), { tabId: 'tab-1' })
 })
 
+test('normalizeCommandArgs forwards a bounded screenshot capture timeout', () => {
+  assert.deepEqual(normalizeCommandArgs('screenshot', { maxWidth: 800 }), { maxWidth: 800 })
+  assert.deepEqual(
+    normalizeCommandArgs('screenshot', { maxWidth: 800, timeoutMs: 5000 }),
+    { maxWidth: 800, timeoutMs: 5000 },
+  )
+  // The capture timeout is clamped into 100..30000 (CONTRACT.md §4.4); an
+  // unusable value is omitted so the client keeps its own default.
+  assert.equal(normalizeCommandArgs('screenshot', { timeoutMs: 1 }).timeoutMs, 100)
+  assert.equal(normalizeCommandArgs('screenshot', { timeoutMs: 999999 }).timeoutMs, 30000)
+  assert.deepEqual(normalizeCommandArgs('screenshot', { timeoutMs: 'nope' }), {})
+})
+
 test('normalizeCommandArgs rejects malformed eval/close arguments with BAD_ARGS', () => {
   for (const args of [{}, { expression: '' }, { expression: 42 }, { expression: 'x'.repeat(262145) }]) {
     assert.throws(

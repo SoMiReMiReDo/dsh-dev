@@ -87,6 +87,11 @@ window.__ModuleLoader__.load({
 		const SHOT_MIN_WIDTH = 100
 		const SHOT_MAX_WIDTH = 4096
 
+		/** Screenshot capture ceiling: a stalled `capturePage()` must not wedge the bridge. */
+		const SHOT_DEFAULT_TIMEOUT_MS = 8000
+		const SHOT_MIN_TIMEOUT_MS = 100
+		const SHOT_MAX_TIMEOUT_MS = 30000
+
 		/** `eval` bounds, per contract §8.1. */
 		const EVAL_DEFAULT_TIMEOUT_MS = 15000
 		const EVAL_MIN_TIMEOUT_MS = 100
@@ -302,6 +307,52 @@ window.__ModuleLoader__.load({
 			if (typeof error === 'string') return error
 			if (error !== null && typeof error === 'object' && typeof error.message === 'string') return error.message
 			return String(error)
+		}
+
+		/**
+		 * Capture and JPEG-encode one live guest's viewport.
+		 *
+		 * The caller bounds the wait: Electron's `webview.capturePage()` can stay
+		 * pending while the guest is not visible, so this promise may never settle
+		 * and must be raced rather than awaited directly.
+		 *
+		 * @param guest - the live `<webview>` element.
+		 * @param maxWidthValue - requested image width bound.
+		 * @returns the encoded image payload.
+		 */
+		async function captureScreenshot(guest, maxWidthValue) {
+			let image
+			try {
+				image = await guest.capturePage()
+			} catch (error) {
+				throw clientError('SCREENSHOT_FAILED', `截图失败：${errorText(error)}`)
+			}
+			if (image === undefined || image === null || typeof image.toDataURL !== 'function') throw clientError('SCREENSHOT_FAILED', '截图失败：页面没有返回图像')
+			try {
+				const maxWidth = clampInt(maxWidthValue, SHOT_DEFAULT_WIDTH, SHOT_MIN_WIDTH, SHOT_MAX_WIDTH)
+				// The renderer has no Node Buffer, so NativeImage.toJPEG() cannot run
+				// here. Encode through a canvas instead: it also performs the resize
+				// and yields the JPEG the Host persists.
+				const dataUrl = image.toDataURL()
+				if (typeof dataUrl !== 'string' || dataUrl.startsWith('data:') !== true) throw new Error('页面没有返回图像数据')
+				const blob = await (await fetch(dataUrl)).blob()
+				const bitmap = await createImageBitmap(blob)
+				const scale = bitmap.width > maxWidth ? maxWidth / bitmap.width : 1
+				const width = Math.max(1, Math.round(bitmap.width * scale))
+				const height = Math.max(1, Math.round(bitmap.height * scale))
+				const canvas = document.createElement('canvas')
+				canvas.width = width
+				canvas.height = height
+				const context = canvas.getContext('2d')
+				if (context === null) throw new Error('无法创建截图画布')
+				context.drawImage(bitmap, 0, 0, width, height)
+				if (typeof bitmap.close === 'function') bitmap.close()
+				const jpeg = canvas.toDataURL('image/jpeg', 0.82)
+				const base64 = jpeg.slice(jpeg.indexOf(',') + 1)
+				return { base64, mime: 'image/jpeg', width, height }
+			} catch (error) {
+				throw clientError('SCREENSHOT_FAILED', `截图失败：${errorText(error)}`)
+			}
 		}
 
 		/**
@@ -934,37 +985,24 @@ window.__ModuleLoader__.load({
 				},
 				async screenshot(args) {
 					requireGuest()
-					let image
+					const guest = element
+					const timeoutMs = clampInt(args?.timeoutMs, SHOT_DEFAULT_TIMEOUT_MS, SHOT_MIN_TIMEOUT_MS, SHOT_MAX_TIMEOUT_MS)
+					let timer
+					const timeout = new Promise((resolve, reject) => {
+						timer = setTimeout(() => reject(clientError('SCREENSHOT_FAILED', `截图失败：页面截图超时（${timeoutMs} 毫秒），请稍后重试`)), timeoutMs)
+						timer.unref?.()
+					})
+					// A stalled guest capture must never wedge the command bridge: the
+					// timeout wins and a late settle stays swallowed here.
+					const capture = Promise.resolve().then(() => captureScreenshot(guest, args?.maxWidth))
+					capture.catch(() => {})
 					try {
-						image = await element.capturePage()
+						return await Promise.race([capture, timeout])
 					} catch (error) {
+						if (error !== null && typeof error === 'object' && error.code === 'SCREENSHOT_FAILED') throw error
 						throw clientError('SCREENSHOT_FAILED', `截图失败：${errorText(error)}`)
-					}
-					if (image === undefined || image === null || typeof image.toDataURL !== 'function') throw clientError('SCREENSHOT_FAILED', '截图失败：页面没有返回图像')
-					try {
-						const maxWidth = clampInt(args?.maxWidth, SHOT_DEFAULT_WIDTH, SHOT_MIN_WIDTH, SHOT_MAX_WIDTH)
-						// The renderer has no Node Buffer, so NativeImage.toJPEG() cannot run
-						// here. Encode through a canvas instead: it also performs the resize
-						// and yields the JPEG the Host persists.
-						const dataUrl = image.toDataURL()
-						if (typeof dataUrl !== 'string' || dataUrl.startsWith('data:') !== true) throw new Error('页面没有返回图像数据')
-						const blob = await (await fetch(dataUrl)).blob()
-						const bitmap = await createImageBitmap(blob)
-						const scale = bitmap.width > maxWidth ? maxWidth / bitmap.width : 1
-						const width = Math.max(1, Math.round(bitmap.width * scale))
-						const height = Math.max(1, Math.round(bitmap.height * scale))
-						const canvas = document.createElement('canvas')
-						canvas.width = width
-						canvas.height = height
-						const context = canvas.getContext('2d')
-						if (context === null) throw new Error('无法创建截图画布')
-						context.drawImage(bitmap, 0, 0, width, height)
-						if (typeof bitmap.close === 'function') bitmap.close()
-						const jpeg = canvas.toDataURL('image/jpeg', 0.82)
-						const base64 = jpeg.slice(jpeg.indexOf(',') + 1)
-						return { base64, mime: 'image/jpeg', width, height }
-					} catch (error) {
-						throw clientError('SCREENSHOT_FAILED', `截图失败：${errorText(error)}`)
+					} finally {
+						clearTimeout(timer)
 					}
 				},
 				async dispose() {
@@ -1532,7 +1570,7 @@ window.__ModuleLoader__.load({
 					if (typeof carrier.canScreenshot === 'function' && carrier.canScreenshot() === false) throw clientError('READ_UNSUPPORTED', 'Web 端无法截图页面，请使用 DSH Desktop 的内置浏览器。')
 					let shot
 					try {
-						shot = await carrier.screenshot({ maxWidth: args.maxWidth })
+						shot = await carrier.screenshot({ maxWidth: args.maxWidth, timeoutMs: args.timeoutMs })
 					} catch (error) {
 						throw error !== null && typeof error === 'object' && typeof error.code === 'string' ? error : clientError('SCREENSHOT_FAILED', `截图失败：${errorText(error)}`)
 					}

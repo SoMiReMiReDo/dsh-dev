@@ -813,6 +813,46 @@ test('an eval timeout is reported to the Host as EVAL_TIMEOUT', async () => {
 	}
 })
 
+test('a screenshot capture that never settles times out instead of wedging the bridge', async () => {
+	installDesktopBridge()
+	pollCommands.push({ id: 'cmd-shot-hang', kind: 'screenshot', args: { timeoutMs: 100 }, tabId: 'tab-shot', sessionId: 'session-1', createdAt: Date.now() })
+	const before = fetchCalls.length
+	try {
+		await withHarness({}, async ({ registrations }) => {
+			const hub = bodyHub(registrations)
+			const container = fakeContainer()
+			const carrier = hub.createCarrier({ sessionId: 'session-1', container, initialUrl: 'https://example.com/', onChange() {}, onFailure() {} })
+			const starting = carrier.start()
+			// Register synchronously: the bridge may receive the queued command as
+			// soon as the Hello round trip settles.
+			hub.registerTab({
+				tabId: 'tab-shot',
+				sessionId: 'session-1',
+				initialUrl: 'https://example.com/',
+				url: 'https://example.com/',
+				title: 'Example',
+				loading: false,
+				navigate() {},
+				getCarrier: () => carrier
+			})
+			await starting
+			const node = container.children[0]
+			// The guest capture never settles; only the client timeout can report it.
+			node.capturePage = () => new Promise(() => {})
+			node.emit('dom-ready')
+			node.emit('dom-ready')
+			await eventually(() => fetchCalls.slice(before).some((call) => call.path === '/api/inner-chrome.result' && call.body.id === 'cmd-shot-hang'), 'the screenshot timeout was reported')
+			const result = fetchCalls.slice(before).find((call) => call.path === '/api/inner-chrome.result' && call.body.id === 'cmd-shot-hang').body
+			assert.equal(result.ok, false)
+			assert.equal(result.error.code, 'SCREENSHOT_FAILED')
+			assert.match(result.error.message, /截图超时/)
+			await carrier.dispose()
+		})
+	} finally {
+		removeDesktopBridge()
+	}
+})
+
 test('open passes injectScript to the new tab and runs it after dom-ready', async () => {
 	installDesktopBridge()
 	try {

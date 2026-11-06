@@ -44,6 +44,10 @@ export const MIN_EVAL_TIMEOUT_MS = 100
 export const MAX_EVAL_TIMEOUT_MS = 60000
 export const DEFAULT_EVAL_TIMEOUT_MS = 15000
 
+/** `screenshot.timeoutMs` bounds; the client applies its own default when omitted (CONTRACT.md §4.4). */
+export const MIN_SCREENSHOT_TIMEOUT_MS = 100
+export const MAX_SCREENSHOT_TIMEOUT_MS = 30000
+
 /** `poll` wait bound when the request omits `waitMs`. */
 export const DEFAULT_POLL_WAIT_MS = 15000
 
@@ -131,6 +135,18 @@ function evalTimeoutMs(value) {
 }
 
 /**
+ * Clamp an optional `screenshot.timeoutMs` into the contract bounds.
+ * @param value - untrusted candidate.
+ * @returns the timeout handed to the client, or undefined when the caller omitted it.
+ */
+function screenshotTimeoutMs(value) {
+  if (value === undefined || value === null) return undefined
+  const number = Number(value)
+  if (!Number.isFinite(number)) return undefined
+  return Math.min(MAX_SCREENSHOT_TIMEOUT_MS, Math.max(MIN_SCREENSHOT_TIMEOUT_MS, Math.trunc(number)))
+}
+
+/**
  * Validate the optional `open.injectScript` argument.
  * @param value - untrusted candidate.
  * @returns the script, or undefined when the caller omitted it.
@@ -162,7 +178,8 @@ function resultErrorCode(code) {
  * `open` and `navigate` URLs are normalized here (CONTRACT.md §3.3: invalid
  * URLs fail immediately with `BAD_ARGS`, before anything reaches the client).
  * The v0.2 `eval`/`close` kinds and the `open` injection options are validated
- * here too (CONTRACT.md §8.1).
+ * here too (CONTRACT.md §8.1), as is the optional `screenshot.timeoutMs`
+ * (CONTRACT.md §4.4).
  *
  * @param kind - command kind.
  * @param args - untrusted tool arguments.
@@ -202,6 +219,8 @@ export function normalizeCommandArgs(kind, args) {
       const output = {}
       const maxWidth = positiveInteger(input.maxWidth)
       if (maxWidth !== undefined) output.maxWidth = maxWidth
+      const timeoutMs = screenshotTimeoutMs(input.timeoutMs)
+      if (timeoutMs !== undefined) output.timeoutMs = timeoutMs
       return output
     }
     case 'tabs': {

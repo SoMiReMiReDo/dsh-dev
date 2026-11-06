@@ -119,13 +119,17 @@ Result（客户端 POST 回 `/result`）：
 | `open` | `{ url:string, newTab?:boolean }` | `{ tabId, sessionId, url, title, loading }` |
 | `read` | `{ maxChars?:number }` | `{ tabId, url, title, text, chars, truncated }` |
 | `click` | `{ selector?:string, text?:string }` | `{ tabId, url, title, found:boolean, tag?:string }` |
-| `screenshot` | `{ maxWidth?:number }` | `{ tabId, url, title, mime:'image/jpeg', base64, width, height }` |
+| `screenshot` | `{ maxWidth?:number, timeoutMs?:number }` | `{ tabId, url, title, mime:'image/jpeg', base64, width, height }` |
 | `tabs` | `{}` | `{ tabs:[{ tabId, sessionId, url, title, active }] }` |
 | `navigate` | `{ action:'back'\|'forward'\|'reload'\|'goto', url?:string }` | `{ tabId, url, title }` |
 
 Host 对 `open`/`navigate` 的 `url` 做一次 `assertHttpUrl`（见 `lib/url.mjs` 语义）；非法立即 `BAD_ARGS`。
 Host 等待结果的超时：工具级 25s；超时返回 `TIMEOUT` 文案，提示“内置浏览器没有响应：请确认 DSH Desktop
 窗口开着，且右侧栏浏览器标签页可打开”。
+
+`screenshot` 的客户端抓取有硬上限：`timeoutMs` 默认 8000，夹在 100..30000。`<webview>.capturePage()`
+在窗口不可见/被节流时可能一直不 settle，超时后客户端以 `SCREENSHOT_FAILED` 上报并继续轮询，
+避免单个命令卡死整条 bridge（宿主心跳 30s 过期会判客户端离线）。
 
 ### 3.4 工具（`ctx.tools.register`，照抄 xhs-check 形态：`parameters` JSON Schema + `output.schema` + `output.render`）
 
