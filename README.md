@@ -1,6 +1,7 @@
 # DeepSeek Harness 插件
 
-这个仓库包含三个 DeepSeek Harness 插件。本分支新增内置浏览器和小红书采集插件。
+该仓库用于存放我对个人DSH进行的开发微调工作内容，包括但不限于Profile、Prest、Plugin层面的调整。
+当前仓库包含三个 DeepSeek Harness 插件。本分支新增内置浏览器和小红书采集插件。
 
 | 插件 | 功能 |
 | --- | --- |
