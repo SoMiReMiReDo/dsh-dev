@@ -1,0 +1,4 @@
+# Optional profile-level override. Use after installing the PPT Ultra bundle.
+- id: agent-preset-registry
+  config:
+    default: ppt-edit

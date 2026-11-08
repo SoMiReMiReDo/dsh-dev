@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" role="img" aria-labelledby="title desc">
+<title id="title">PPT Ultra 满屏编辑工作台</title>
+<desc id="desc">左侧为页面导航，中央上下展示同一幻灯片修改前和修改后的大幅预览。右侧可选定对象，设置文本和对齐参数，查看预检并应用修改。</desc>
+<rect x="0" y="0" width="1440" height="960" rx="0" fill="#ffffff" stroke="none" />
+<rect x="0" y="50" width="150" height="910" rx="0" fill="#f7f8fc" stroke="none" />
+<rect x="150" y="50" width="890" height="910" rx="0" fill="#edf0f6" stroke="none" />
+<path d="M0 50L1440 50" fill="none" stroke="#dde4ef" />
+<path d="M150 50L150 960" fill="none" stroke="#dde4ef" />
+<path d="M1040 50L1040 960" fill="none" stroke="#dde4ef" />
+<rect x="16" y="12" width="27" height="27" rx="6" fill="#523cbd" stroke="none" />
+<text x="29.5" y="31" fill="#ffffff" font-size="15" font-weight="700" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">P</text>
+<text x="53" y="31" fill="#1e2740" font-size="17" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">PPT Ultra</text>
+<path d="M143 15L143 36" fill="none" stroke="#dde4ef" />
+<text x="157" y="31" fill="#1e2740" font-size="14" font-weight="550" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">Q3 运营复盘.pptx</text>
+<rect x="302" y="14" width="65" height="23" rx="5" fill="#f7f8fc" stroke="none" />
+<text x="334.5" y="30" fill="#536179" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">示例文稿</text>
+<circle cx="1190" cy="25" r="3" fill="#8d75d9"/>
+<text x="1200" y="30" fill="#536179" font-size="12" font-weight="550" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">有待应用修改</text>
+<rect x="1295" y="9" width="129" height="32" rx="7" fill="#f2f4f8" stroke="#e3e7ef" />
+<text x="1359.5" y="30.0" fill="#65728a" font-size="13" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">导出 PPTX</text>
+<text x="16" y="79" fill="#1e2740" font-size="14" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">幻灯片</text>
+<text x="132" y="79" fill="#536179" font-size="11" font-weight="500" text-anchor="end" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">12 页</text>
+<path d="M0 96L150 96" fill="none" stroke="#dde4ef" />
+<rect x="18" y="110" width="114" height="64" rx="4" fill="#ffffff" stroke="#cfdaea" />
+<rect x="19" y="111" width="112" height="3" rx="1" fill="#37507c" stroke="none" />
+<rect x="26" y="123" width="43" height="4" rx="2" fill="#395682" stroke="none" />
+<rect x="26" y="131" width="32" height="3" rx="1" fill="#b1bfd8" stroke="none" />
+<rect x="26" y="140" width="28" height="20" rx="2" fill="#e3e9f5" stroke="none" />
+<rect x="61" y="140" width="63" height="20" rx="2" fill="#e4e9f7" stroke="none" />
+<text x="18" y="194" fill="#536179" font-size="12" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">04  季度目标</text>
+<rect x="18" y="222" width="114" height="64" rx="4" fill="#ffffff" stroke="#cfdaea" />
+<rect x="19" y="223" width="112" height="3" rx="1" fill="#37507c" stroke="none" />
+<rect x="26" y="235" width="57" height="4" rx="2" fill="#395682" stroke="none" />
+<rect x="26" y="243" width="32" height="3" rx="1" fill="#b1bfd8" stroke="none" />
+<rect x="26" y="252" width="28" height="20" rx="2" fill="#e3e9f5" stroke="none" />
+<rect x="61" y="252" width="63" height="20" rx="2" fill="#d6e8e5" stroke="none" />
+<text x="18" y="306" fill="#536179" font-size="12" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">05  项目进展</text>
+<rect x="18" y="334" width="114" height="64" rx="4" fill="#ffffff" stroke="#cfdaea" />
+<rect x="19" y="335" width="112" height="3" rx="1" fill="#37507c" stroke="none" />
+<rect x="26" y="347" width="43" height="4" rx="2" fill="#395682" stroke="none" />
+<rect x="26" y="355" width="32" height="3" rx="1" fill="#b1bfd8" stroke="none" />
+<rect x="26" y="364" width="28" height="20" rx="2" fill="#e3e9f5" stroke="none" />
+<rect x="61" y="364" width="63" height="20" rx="2" fill="#e4e9f7" stroke="none" />
+<text x="18" y="418" fill="#536179" font-size="12" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">06  渠道概览</text>
+<rect x="8" y="439" width="134" height="104" rx="8" fill="#eeebff" stroke="none" />
+<rect x="18" y="446" width="114" height="64" rx="4" fill="#ffffff" stroke="#523cbd" />
+<rect x="19" y="447" width="112" height="3" rx="1" fill="#37507c" stroke="none" />
+<rect x="26" y="459" width="57" height="4" rx="2" fill="#395682" stroke="none" />
+<rect x="26" y="467" width="32" height="3" rx="1" fill="#b1bfd8" stroke="none" />
+<rect x="26" y="476" width="28" height="20" rx="2" fill="#e3e9f5" stroke="none" />
+<rect x="61" y="476" width="63" height="20" rx="2" fill="#d6e8e5" stroke="none" />
+<text x="18" y="530" fill="#523cbd" font-size="12" font-weight="650" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">07  核心指标</text>
+<circle cx="124" cy="526" r="3" fill="#523cbd"/>
+<rect x="18" y="558" width="114" height="64" rx="4" fill="#ffffff" stroke="#cfdaea" />
+<rect x="19" y="559" width="112" height="3" rx="1" fill="#37507c" stroke="none" />
+<rect x="26" y="571" width="43" height="4" rx="2" fill="#395682" stroke="none" />
+<rect x="26" y="579" width="32" height="3" rx="1" fill="#b1bfd8" stroke="none" />
+<rect x="26" y="588" width="28" height="20" rx="2" fill="#e3e9f5" stroke="none" />
+<rect x="61" y="588" width="63" height="20" rx="2" fill="#e4e9f7" stroke="none" />
+<text x="18" y="642" fill="#536179" font-size="12" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">08  后续计划</text>
+<rect x="18" y="670" width="114" height="64" rx="4" fill="#ffffff" stroke="#cfdaea" />
+<rect x="19" y="671" width="112" height="3" rx="1" fill="#37507c" stroke="none" />
+<rect x="26" y="683" width="57" height="4" rx="2" fill="#395682" stroke="none" />
+<rect x="26" y="691" width="32" height="3" rx="1" fill="#b1bfd8" stroke="none" />
+<rect x="26" y="700" width="28" height="20" rx="2" fill="#e3e9f5" stroke="none" />
+<rect x="61" y="700" width="63" height="20" rx="2" fill="#d6e8e5" stroke="none" />
+<text x="18" y="754" fill="#536179" font-size="12" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">09  风险与应对</text>
+<rect x="18" y="782" width="114" height="64" rx="4" fill="#ffffff" stroke="#cfdaea" />
+<rect x="19" y="783" width="112" height="3" rx="1" fill="#37507c" stroke="none" />
+<rect x="26" y="795" width="43" height="4" rx="2" fill="#395682" stroke="none" />
+<rect x="26" y="803" width="32" height="3" rx="1" fill="#b1bfd8" stroke="none" />
+<rect x="26" y="812" width="28" height="20" rx="2" fill="#e3e9f5" stroke="none" />
+<rect x="61" y="812" width="63" height="20" rx="2" fill="#e4e9f7" stroke="none" />
+<text x="18" y="866" fill="#536179" font-size="12" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">10  资源需求</text>
+<rect x="151" y="51" width="888" height="45" rx="0" fill="#f8faff" stroke="none" />
+<path d="M151 96L1040 96" fill="none" stroke="#dde4ef" />
+<text x="173" y="79" fill="#1e2740" font-size="15" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">第 7 页 · 核心指标</text>
+<rect x="670" y="59" width="193" height="28" rx="6" fill="#ffffff" stroke="#dde4ef" />
+<rect x="673" y="62" width="96" height="22" rx="4" fill="#eeebff" stroke="none" />
+<text x="721" y="77" fill="#523cbd" font-size="12" font-weight="650" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">上下对照</text>
+<text x="815" y="77" fill="#536179" font-size="12" font-weight="500" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">单页预览</text>
+<rect x="875" y="59" width="144" height="28" rx="7" fill="#ffffff" stroke="#dde4ef" />
+<text x="947.0" y="78.0" fill="#1e2740" font-size="13" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">自动缩放  ⌄</text>
+<text x="243" y="115" fill="#536179" font-size="12" font-weight="650" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">修改前</text>
+<text x="947" y="115" fill="#536179" font-size="11" font-weight="400" text-anchor="end" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">本轮基准</text>
+<rect x="243" y="124" width="704" height="396" rx="4" fill="#ffffff" stroke="#cbd6e7" />
+<rect x="244" y="125" width="702" height="7" rx="2" fill="#314a78" stroke="none" />
+<text x="277" y="173" fill="#52698b" font-size="15" font-weight="600" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">运营复盘  /  2026 Q3</text>
+<text x="277" y="218" fill="#182f58" font-size="32" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">Q3 业务进展及核心指标表现</text>
+<path d="M277 243L913 243" fill="none" stroke="#dce4f1" />
+<text x="277" y="300" fill="#36507c" font-size="19" font-weight="600" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">核心指标</text>
+<text x="277" y="356" fill="#294578" font-size="48" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">18.6%</text>
+<text x="279" y="384" fill="#576b8a" font-size="17" font-weight="400" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">环比增长</text>
+<rect x="519" y="278" width="183" height="137" rx="4" fill="#dcece8" stroke="none" />
+<path d="M525 403l45.75 -60.28 32.94 31.51 32.94 -39.73 58.56 68.5Z" fill="#88b7af"/>
+<circle cx="654.42" cy="312.25" r="13.015" fill="#568e84"/>
+<rect x="723" y="309" width="183" height="137" rx="4" fill="#e2e9f8" stroke="none" />
+<rect x="750.45" y="392.57" width="21.96" height="31.51" rx="2" fill="#859bd1" stroke="none" />
+<rect x="785.22" y="363.8" width="21.96" height="60.28" rx="2" fill="#859bd1" stroke="none" />
+<rect x="819.99" y="376.13" width="21.96" height="47.949999999999996" rx="2" fill="#859bd1" stroke="none" />
+<rect x="854.76" y="333.65999999999997" width="21.96" height="90.42" rx="2" fill="#859bd1" stroke="none" />
+<text x="278" y="489" fill="#52698b" font-size="14" font-weight="400" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">运营数据组</text>
+<text x="909" y="489" fill="#52698b" font-size="14" font-weight="400" text-anchor="end" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">07</text>
+<text x="243" y="541" fill="#523cbd" font-size="12" font-weight="650" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">修改后 · 预览</text>
+<rect x="934" y="530" width="12" height="12" rx="3" fill="#523cbd" stroke="none" />
+<path d="M936 536l3 3 5 -6" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<text x="926" y="541" fill="#523cbd" font-size="11" font-weight="550" text-anchor="end" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">显示改动标注</text>
+<rect x="243" y="550" width="704" height="396" rx="4" fill="#ffffff" stroke="#cbd6e7" />
+<rect x="244" y="551" width="702" height="7" rx="2" fill="#314a78" stroke="none" />
+<text x="277" y="599" fill="#52698b" font-size="15" font-weight="600" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">运营复盘  /  2026 Q3</text>
+<text x="277" y="644" fill="#182f58" font-size="32" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">Q3 核心指标表现</text>
+<path d="M277 669L913 669" fill="none" stroke="#dce4f1" />
+<text x="277" y="726" fill="#36507c" font-size="19" font-weight="600" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">核心指标</text>
+<text x="277" y="782" fill="#294578" font-size="48" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">18.6%</text>
+<text x="279" y="810" fill="#576b8a" font-size="17" font-weight="400" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">环比增长</text>
+<rect x="519" y="704" width="183" height="137" rx="4" fill="#dcece8" stroke="none" />
+<path d="M525 829l45.75 -60.28 32.94 31.51 32.94 -39.73 58.56 68.5Z" fill="#88b7af"/>
+<circle cx="654.42" cy="738.25" r="13.015" fill="#568e84"/>
+<rect x="723" y="704" width="183" height="137" rx="4" fill="#e2e9f8" stroke="none" />
+<rect x="750.45" y="787.5699999999999" width="21.96" height="31.51" rx="2" fill="#859bd1" stroke="none" />
+<rect x="785.22" y="758.8" width="21.96" height="60.28" rx="2" fill="#859bd1" stroke="none" />
+<rect x="819.99" y="771.13" width="21.96" height="47.949999999999996" rx="2" fill="#859bd1" stroke="none" />
+<rect x="854.76" y="728.66" width="21.96" height="90.42" rx="2" fill="#859bd1" stroke="none" />
+<text x="278" y="915" fill="#52698b" font-size="14" font-weight="400" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">运营数据组</text>
+<text x="909" y="915" fill="#52698b" font-size="14" font-weight="400" text-anchor="end" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">07</text>
+<rect x="270" y="612" width="266" height="43" rx="3" fill="none" stroke="#7659d8" stroke-dasharray="4 3"/>
+<rect x="518" y="703" width="185" height="139" rx="3" fill="none" stroke="#7659d8" />
+<rect x="516" y="701" width="5" height="5" rx="1" fill="#ffffff" stroke="#7659d8" />
+<rect x="701" y="701" width="5" height="5" rx="1" fill="#ffffff" stroke="#7659d8" />
+<rect x="722" y="703" width="185" height="139" rx="3" fill="none" stroke="#7659d8" />
+<rect x="720" y="701" width="5" height="5" rx="1" fill="#ffffff" stroke="#7659d8" />
+<rect x="905" y="701" width="5" height="5" rx="1" fill="#ffffff" stroke="#7659d8" />
+<path d="M508 703L917 703" fill="none" stroke="#7659d8" stroke-dasharray="5 4"/>
+<text x="1060" y="80" fill="#1e2740" font-size="18" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">编辑面板</text>
+<rect x="1345" y="61" width="75" height="23" rx="5" fill="#eeebff" stroke="none" />
+<text x="1382.5" y="77" fill="#523cbd" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">待应用</text>
+<text x="1061" y="118" fill="#523cbd" font-size="13" font-weight="650" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">编辑</text>
+<text x="1136" y="118" fill="#536179" font-size="13" font-weight="500" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">变更记录</text>
+<text x="1242" y="118" fill="#536179" font-size="13" font-weight="500" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">检查</text>
+<path d="M1041 130L1440 130" fill="none" stroke="#dde4ef" />
+<path d="M1059 130L1090 130" fill="none" stroke="#523cbd" stroke-width="2"/>
+<text x="1060" y="157" fill="#1e2740" font-size="14" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">编辑范围</text>
+<text x="1420" y="157" fill="#536179" font-size="12" font-weight="500" text-anchor="end" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">第 7 页 · 已选 3 个对象</text>
+<rect x="1060" y="171" width="360" height="39" rx="7" fill="#ffffff" stroke="#dde4ef" />
+<rect x="1069" y="179" width="58" height="23" rx="5" fill="#eeebff" stroke="none" />
+<text x="1098.0" y="195" fill="#523cbd" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">页标题</text>
+<rect x="1133" y="179" width="59" height="23" rx="5" fill="#eeebff" stroke="none" />
+<text x="1162.5" y="195" fill="#523cbd" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">左侧图</text>
+<rect x="1198" y="179" width="59" height="23" rx="5" fill="#eeebff" stroke="none" />
+<text x="1227.5" y="195" fill="#523cbd" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">右侧图</text>
+<rect x="1331" y="178" width="80" height="24" rx="5" fill="#f7f8fc" stroke="#dde4ef" />
+<path d="M1339 185L1347 185" fill="none" stroke="#536179" />
+<path d="M1339 190L1347 190" fill="none" stroke="#536179" />
+<path d="M1339 195L1347 195" fill="none" stroke="#536179" />
+<text x="1353" y="194" fill="#536179" font-size="11" font-weight="550" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">对象列表</text>
+<text x="1061" y="230" fill="#536179" font-size="11" font-weight="400" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">在预览中点选对象，或通过对象列表修改选区</text>
+<path d="M1060 245L1420 245" fill="none" stroke="#dde4ef" />
+<text x="1060" y="273" fill="#1e2740" font-size="14" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">待应用操作</text>
+<text x="1420" y="273" fill="#536179" font-size="12" font-weight="500" text-anchor="end" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">2 项</text>
+<rect x="1060" y="286" width="360" height="101" rx="7" fill="#f7f8fc" stroke="#dde4ef" />
+<circle cx="1078" cy="307" r="10" fill="#eeebff"/>
+<text x="1078" y="311" fill="#523cbd" font-size="11" font-weight="700" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">1</text>
+<text x="1095" y="312" fill="#1e2740" font-size="13" font-weight="650" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">替换文字</text>
+<text x="1173" y="312" fill="#536179" font-size="12" font-weight="400" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">页标题</text>
+<path d="M1395 303l8 8m0 -8l-8 8" fill="none" stroke="#536179" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<text x="1073" y="338" fill="#536179" font-size="11" font-weight="550" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">替换为</text>
+<rect x="1073" y="346" width="334" height="31" rx="6" fill="#ffffff" stroke="#d4ddea" />
+<text x="1082" y="366" fill="#1e2740" font-size="12" font-weight="550" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">Q3 核心指标表现</text>
+<rect x="1060" y="397" width="360" height="105" rx="7" fill="#f7f8fc" stroke="#dde4ef" />
+<circle cx="1078" cy="419" r="10" fill="#eeebff"/>
+<text x="1078" y="423" fill="#523cbd" font-size="11" font-weight="700" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">2</text>
+<text x="1095" y="424" fill="#1e2740" font-size="13" font-weight="650" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">对齐对象</text>
+<text x="1173" y="424" fill="#536179" font-size="12" font-weight="400" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">左侧图、右侧图</text>
+<path d="M1395 415l8 8m0 -8l-8 8" fill="none" stroke="#536179" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<text x="1073" y="450" fill="#536179" font-size="11" font-weight="550" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">对齐方式</text>
+<rect x="1073" y="458" width="160" height="31" rx="6" fill="#ffffff" stroke="#d4ddea" />
+<text x="1082" y="478" fill="#1e2740" font-size="12" font-weight="550" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">顶端对齐</text>
+<path d="M1216 473l3 3 3 -3" fill="none" stroke="#536179" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<text x="1243" y="450" fill="#536179" font-size="11" font-weight="550" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">基准对象</text>
+<rect x="1243" y="458" width="164" height="31" rx="6" fill="#ffffff" stroke="#d4ddea" />
+<text x="1252" y="478" fill="#1e2740" font-size="12" font-weight="550" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">左侧图</text>
+<path d="M1390 473l3 3 3 -3" fill="none" stroke="#536179" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="1060" y="514" width="109" height="29" rx="7" fill="#ffffff" stroke="#dde4ef" />
+<text x="1114.5" y="533.5" fill="#1e2740" font-size="13" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">＋ 添加操作</text>
+<path d="M1060 557L1420 557" fill="none" stroke="#dde4ef" />
+<text x="1060" y="585" fill="#1e2740" font-size="14" font-weight="700" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">应用前检查</text>
+<rect x="1342" y="567" width="78" height="23" rx="5" fill="#e6f3ec" stroke="none" />
+<text x="1381.0" y="583" fill="#245e49" font-size="11" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">预检通过</text>
+<circle cx="1067" cy="603" r="6" fill="#e6f3ec"/>
+<path d="M1064 603l2 2 4 -4" fill="none" stroke="#245e49" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<text x="1081" y="607" fill="#536179" font-size="12" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">已定位全部目标对象</text>
+<circle cx="1067" cy="626" r="6" fill="#e6f3ec"/>
+<path d="M1064 626l2 2 4 -4" fill="none" stroke="#245e49" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+<text x="1081" y="630" fill="#536179" font-size="12" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">预览未发现新增遮挡或裁切</text>
+<text x="1060" y="656" fill="#536179" font-size="11" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">应用时会复核文件结构与实际渲染。</text>
+<rect x="1041" y="757" width="399" height="203" rx="0" fill="#ffffff" stroke="none" />
+<path d="M1041 757L1440 757" fill="none" stroke="#dde4ef" />
+<text x="1060" y="786" fill="#1e2740" font-size="13" font-weight="650" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">用指令调整</text>
+<text x="1420" y="786" fill="#536179" font-size="11" font-weight="450" text-anchor="end" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">可选</text>
+<rect x="1060" y="798" width="360" height="64" rx="7" fill="#ffffff" stroke="#d4ddea" />
+<text x="1072" y="824" fill="#536179" font-size="12" font-weight="450" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">例如：保留全称，只删掉「业务进展及」</text>
+<text x="1060" y="880" fill="#536179" font-size="11" font-weight="400" text-anchor="start" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">指令会更新待应用操作。</text>
+<rect x="1315" y="867" width="105" height="26" rx="7" fill="#f3f0ff" stroke="#e5dfff" />
+<text x="1367.5" y="885.0" fill="#523cbd" font-size="13" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">更新操作</text>
+<path d="M1041 904L1440 904" fill="none" stroke="#dde4ef" />
+<rect x="1060" y="915" width="120" height="33" rx="7" fill="#ffffff" stroke="#dde4ef" />
+<text x="1120.0" y="936.5" fill="#1e2740" font-size="13" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">取消待应用修改</text>
+<rect x="1191" y="915" width="229" height="33" rx="7" fill="#523cbd" stroke="none" />
+<text x="1305.5" y="936.5" fill="#ffffff" font-size="13" font-weight="600" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Microsoft YaHei, sans-serif">应用 2 项修改</text>
+</svg>
