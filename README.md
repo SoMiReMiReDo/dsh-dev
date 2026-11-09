@@ -8,12 +8,38 @@
 
 | 插件 | 包名 / 版本 | 功能 | 文档 |
 | --- | --- | --- | --- |
-| PPT Ultra | `dsh-ppt-ultra` 0.1.0 | PPTX 微调工作台：选中对象后手动或自然语言编辑，先渲染预览再整批应用，支持撤销与导出；保留原稿和字体 | [README](ppt-ultra/README.md) |
+| PPT Ultra | `dsh-ppt-ultra` 0.1.0 | PPTX 微调工作台：左侧栏进入，右侧「文件选择」从 DSH 工作区选 PPTX，「对话」驱动 Agent 生成修改，预览确认后应用、撤销和导出；保留原稿和字体 | [README](ppt-ultra/README.md) |
 | 内置浏览器 | `dsh-inner-chrome` 0.2.0 | 右侧栏浏览器标签页，Agent 可打开页面、读取正文、点击元素和截图 | [README](inner-chrome/README.md) |
 | 小红书采集 | `dsh-xhs-check` 0.2.0 | 使用已登录的浏览器采集笔记、评论、搜索结果、主页、通知和私信会话，保存为本地 JSON | [README](xhs-check/README.md) |
 | 侧聊 | `dsh-side-chat` 0.2.0 | 右侧栏只读旁路会话，每次请求实时注入主会话上下文，关闭即销毁、不落盘 | [交接文档](side-chat/HANDOFF.md) |
 
 侧聊的桌面端真机交互仍在验收，状态见 [PROGRESS.md](side-chat/PROGRESS.md)。
+
+## PPT Ultra 已知问题（UI / Session）
+
+> PPT Ultra 刚完成工作台入口和右侧面板改版，UI 与 session 逻辑仍在迭代。以下问题尚未修复，当前状态不代表最终交付质量；工作记录见 [MEMORY.md](ppt-ultra/MEMORY.md) 与 [HANDOFF.md](ppt-ultra/HANDOFF.md)。
+
+### UI
+
+- 右侧面板只有「文件选择 / 对话」两个 tab，但「对话 → Agent 提案 → 待应用修改卡片 → 应用 → 导出」整条链路还没有用真实模型跑通；卡片、流式回复、错误/空态都是初步实现。
+- 手动参数编辑面板已移除，现阶段只能通过对话修改；画布对象选择只作为对话上下文，不能直接改文字、对齐或尺寸。
+- 对话记录是纯文本：不渲染 Markdown，不展示工具调用和中间步骤；超长用户消息做了截断显示，和真实 Session 记录不完全一致。
+- 窄屏抽屉、大目录文件浏览、仓库切换、无文稿/无会话空态、导出禁用提示等缺少回归测试。
+- 文案与部分控件是中文硬编码，未接入 DSH locale；视觉只做了部分 DSH 原生风格对齐。
+- 文件选择只支持逐层浏览 DSH 已注册工作区，没有搜索、最近文件、多选或把仓库文件拖进右侧面板；本地文件上传与仓库文件是两套入口。
+
+### Session 逻辑
+
+- 工作台对话绑定一个 DSH Session，「最近用的对话」存在浏览器 localStorage；跨窗口/跨设备不一致，重新打开工作台可能沿用旧对话而不是当前主会话。
+- 「新建对话」由 Client 直接调 `sessions.create`，没有走 `uiWorkspace.startSession` 的空白会话复用与导航流程：会在侧栏留下真实会话，不自动命名，也不会切换 DSH 主视图。
+- 文稿记录按 `sessionId` 归属。切换对话时用 `sourcePath` 重新打开当前文稿，会产生新的文稿 ID 和新的状态记录；旧对话里的历史轮次与撤销记录没有入口找回。
+- 没有对话列表或会话切换 UI，只能新建对话；关闭工作台后靠 localStorage 记住当前对话，换浏览器窗口会丢失。
+- Host `conversation` 路由依赖 Session 处于激活状态；会话未激活时只返回 `available: false`，UI 仅提示「对话记录暂不可用」，没有自动恢复逻辑。
+- 对话 Session 的 retain/release 由页面生命周期控制；退出工作台、刷新页面、Host 重启后的对话可读性尚未系统验证。
+- `ppt_ultra_open` 自动切页的 watcher 只轮询当前主会话、单窗口生效；多窗口/多会话并发行为未定义。
+- 对话 Session 与文稿所在仓库没有强绑定：可以在 A 仓库的会话里打开 B 仓库的文件，Agent 的 cwd 与文稿目录可能不一致。
+- 从本地上传的文稿没有 `sourcePath`，切换或新建对话时不会跟随重开；只有从仓库打开的文件会。
+
 
 ## 安装
 
@@ -34,7 +60,7 @@ git clone --branch dev/ppt-ultra https://github.com/SoMiReMiReDo/dsh-dev.git
 
 | 插件 | 入口 |
 | --- | --- |
-| PPT Ultra | 顶栏「打开 PPT Ultra」；新建会话选「PPT 编辑」（`ppt-edit`）预设后自动打开。预设的 profile 补丁见其 README |
+| PPT Ultra | 左侧栏「PPT 工作台」；右侧「文件选择」选仓库和 .pptx，「对话」里描述修改（可新建对话，不同会话上下文独立） |
 | 内置浏览器 | 右侧栏「内置浏览器」，或让 Agent 调用 `inner_chrome_*` 工具 |
 | 小红书采集 | 「设置 → 小红书采集」，或让 Agent 调用 `xhs_*` 工具 |
 | 侧聊 | 会话头部的分支图标 |
@@ -52,7 +78,7 @@ PPT Ultra 另有 Python 引擎测试和仅绑定本机的界面预览服务：
 ```sh
 cd ppt-ultra
 python3 -m unittest discover -s test -p '*_test.py'   # 需要 python-pptx / lxml / Pillow
-npm run dev                                            # 127.0.0.1:4177，仅用于界面与参数验证
+npm run dev                                            # 127.0.0.1:4177，仅用于界面与文稿渲染验证（不含真实模型对话）
 ```
 
 改动生效方式：`client.js` 刷新页面；`index.js`、`cordis.patch.yml`、`package.json` 重启 DSH（profile 以 `link:` 安装，Node 按路径缓存 ESM）。
