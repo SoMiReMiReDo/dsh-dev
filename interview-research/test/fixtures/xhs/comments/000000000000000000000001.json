@@ -1,0 +1,54 @@
+{
+ "noteId": "000000000000000000000001",
+ "comments": [
+  {
+   "type": "comment",
+   "id": "c1",
+   "noteId": "000000000000000000000001",
+   "parentId": null,
+   "content": "请问一面之后多久有结果？",
+   "author": {
+    "id": "u9",
+    "nickname": "求职者"
+   },
+   "likeCount": 3,
+   "createdAt": "2026-10-21T10:00:00+08:00",
+   "ipLocation": "辽宁",
+   "subCommentCount": 1,
+   "subComments": [
+    {
+     "type": "comment",
+     "id": "c1-1",
+     "noteId": "000000000000000000000001",
+     "parentId": "c1",
+     "content": "大概一周。",
+     "author": {
+      "id": "u1",
+      "nickname": "小明"
+     },
+     "likeCount": 1,
+     "createdAt": "2026-10-21T11:00:00+08:00",
+     "ipLocation": "辽宁"
+    }
+   ]
+  },
+  {
+   "type": "comment",
+   "id": "c2",
+   "noteId": "000000000000000000000001",
+   "parentId": null,
+   "content": "英文自我介绍卡住了会被挂吗？",
+   "author": {
+    "id": "u8",
+    "nickname": "备考中"
+   },
+   "likeCount": 2,
+   "createdAt": "2026-10-22T09:00:00+08:00",
+   "ipLocation": "江苏",
+   "subCommentCount": 0,
+   "subComments": []
+  }
+ ],
+ "collectedAt": "2026-11-05T12:08:00+08:00",
+ "sourceUrl": "https://www.xiaohongshu.com/"
+}

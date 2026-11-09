@@ -1,0 +1,19 @@
+{
+ "url": "https://www.xiaohongshu.com/search_result?keyword=%E4%BA%8C%E9%9D%A2",
+ "sort": "latest",
+ "query": "示例半导体 二面",
+ "notes": [
+  {
+   "id": "000000000000000000000001",
+   "xsec_token": "token-a",
+   "title": "示例半导体 大连 一面面经"
+  },
+  {
+   "id": "000000000000000000000002",
+   "xsec_token": "token-b",
+   "title": "示例半导体 二面 + HR 面复盘"
+  }
+ ],
+ "collectedAt": "2026-11-05T12:10:00+08:00",
+ "sourceUrl": "https://www.xiaohongshu.com/"
+}

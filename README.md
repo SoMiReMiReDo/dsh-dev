@@ -1,8 +1,8 @@
 # DeepSeek Harness 插件集
 
-个人对 DeepSeek Harness（DSH）的开发微调仓库。四个插件分别提供右侧栏浏览器、小红书数据采集、侧聊和 PPTX 精准编辑工作台，均自带 `cordis.patch.yml`，可以装进同一个 profile 组合使用。
+个人对 DeepSeek Harness（DSH）的开发微调仓库。四个插件分别提供右侧栏浏览器、小红书数据采集、侧聊和 PPTX 精准编辑工作台，均自带 `cordis.patch.yml`，可以装进同一个 profile 组合使用；另有一个「面经调研 → 面试准备页」Skill（`interview-research`），一条命令即可连同所需插件安装到其他 DSH。
 
-当前分支 `dev/ppt-ultra`。
+分支：`dev/ppt-ultra`（插件主开发）、`dev/interview-research`（面试调研 Skill）。
 
 ## 插件
 
@@ -14,6 +14,18 @@
 | 侧聊 | `dsh-side-chat` 0.2.0 | 右侧栏只读旁路会话，每次请求实时注入主会话上下文，关闭即销毁、不落盘 | [交接文档](side-chat/HANDOFF.md) |
 
 侧聊的桌面端真机交互仍在验收，状态见 [PROGRESS.md](side-chat/PROGRESS.md)。
+
+## 面试调研 Skill
+
+`interview-research/` 是一个 DSH Skill：调研某公司/岗位的面经（小红书采集 + 网络检索），整理成结构化内容，生成单文件离线 HTML 面试准备手册 + Markdown 摘要。自带 Python 脚本（仅标准库）、通用 HTML 模板与端到端测试。
+
+一条命令安装 skill + 依赖插件（`dsh-inner-chrome`、`dsh-xhs-check`）：
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/SoMiReMiReDo/dsh-dev/dev/interview-research/install.sh | bash
+```
+
+本地仓库内：`bash install.sh`（`--check` 只检查、`--dry-run` 只打印、`--uninstall` 卸载 skill）。装完重启 DSH，新开会话即可用；详见 [README](interview-research/README.md) 与 [SKILL.md](interview-research/SKILL.md)。
 
 ## PPT Ultra 已知问题（UI / Session）
 
@@ -49,7 +61,9 @@
 git clone --branch dev/ppt-ultra https://github.com/SoMiReMiReDo/dsh-dev.git
 ```
 
-在 DSH Desktop 中调用 `plugin_manager install_bundle`，`target` 传仓库内插件目录的绝对路径。四个插件装进同一个 profile，按以下顺序安装：
+只装面经调研所需的 skill + 两个插件（`inner-chrome`、`xhs-check`），用仓库根目录的 `install.sh` 一条命令完成，见上文「面试调研 Skill」。
+
+装全部插件时，在 DSH Desktop 中调用 `plugin_manager install_bundle`，`target` 传仓库内插件目录的绝对路径。四个插件装进同一个 profile，按以下顺序安装：
 
 1. `inner-chrome/` —— 先装。小红书采集通过 `ctx.innerChrome` 复用它的浏览器。
 2. `xhs-check/`
@@ -81,6 +95,12 @@ python3 -m unittest discover -s test -p '*_test.py'   # 需要 python-pptx / lxm
 npm run dev                                            # 127.0.0.1:4177，仅用于界面与文稿渲染验证（不含真实模型对话）
 ```
 
+面试调研 skill 用 Python 自测（离线、仅标准库）：
+
+```sh
+python3 -m unittest discover -s interview-research/test -v
+```
+
 改动生效方式：`client.js` 刷新页面；`index.js`、`cordis.patch.yml`、`package.json` 重启 DSH（profile 以 `link:` 安装，Node 按路径缓存 ESM）。
 
 ## 数据与隐私
@@ -91,6 +111,7 @@ npm run dev                                            # 127.0.0.1:4177，仅用
 | 内置浏览器 | 截图保存在 `~/.dsh/inner-chrome/screenshots/` |
 | PPT Ultra | 原稿、历史和预览保存在 `~/.dsh/ppt-ultra/`；`ppt-ultra/test/fixtures/*.pptx` 默认不入库 |
 | 侧聊 | 内存态，关闭标签页即销毁 |
+| 面试调研 skill | 采集数据与生成物在用户自选项目目录（`data/`、`content.json`、`report.html`），不随 skill 分发 |
 
 自定义数据目录时放到仓库外，或补充对应的 Git 忽略规则。采集内容仅限你有权访问和保存的范围；原始响应可能包含账号资料、通知或会话信息。
 
@@ -100,4 +121,5 @@ npm run dev                                            # 127.0.0.1:4177，仅用
 | --- | --- |
 | `main` | 早期 side-chat 单插件线 |
 | `dev/xhs-innerChrome` | 侧聊 + 内置浏览器 + 小红书采集 |
-| `dev/ppt-ultra`（当前） | 在上一分支基础上新增 PPT Ultra |
+| `dev/ppt-ultra` | 在上一分支基础上新增 PPT Ultra |
+| `dev/interview-research` | 在 `dev/ppt-ultra` 基础上新增面经调研 Skill 与 `install.sh` 一键安装 |

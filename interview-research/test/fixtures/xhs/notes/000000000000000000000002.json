@@ -1,0 +1,29 @@
+{
+ "type": "note",
+ "id": "000000000000000000000002",
+ "url": "https://www.xiaohongshu.com/explore/000000000000000000000002",
+ "title": "示例半导体 二面 + HR 面复盘",
+ "desc": "线下面试，技术面问到 3D NAND 结构和良率分析；HR 面问为什么来大连、能不能倒班。",
+ "author": {
+  "id": "u2",
+  "nickname": "阿花",
+  "avatarUrl": ""
+ },
+ "images": [],
+ "video": null,
+ "tags": [
+  "二面",
+  "HR面"
+ ],
+ "stats": {
+  "liked": 88,
+  "collected": 12,
+  "comments": 5,
+  "shared": 1
+ },
+ "publishedAt": "2026-10-20T18:30:00+08:00",
+ "ipLocation": "上海",
+ "noteType": "normal",
+ "collectedAt": "2026-11-05T12:06:00+08:00",
+ "sourceUrl": "https://www.xiaohongshu.com/"
+}

@@ -1,0 +1,35 @@
+{
+ "type": "note",
+ "id": "000000000000000000000001",
+ "url": "https://www.xiaohongshu.com/explore/000000000000000000000001",
+ "title": "示例半导体 大连 一面面经",
+ "desc": "线上一面 1v1，先英文自我介绍，然后问简历项目，最后反问。面试官很关注工艺细节。",
+ "author": {
+  "id": "u1",
+  "nickname": "小明",
+  "avatarUrl": ""
+ },
+ "images": [
+  {
+   "url": "https://img.invalid/a.jpg",
+   "width": 800,
+   "height": 600
+  }
+ ],
+ "video": null,
+ "tags": [
+  "面经",
+  "秋招"
+ ],
+ "stats": {
+  "liked": 120,
+  "collected": 30,
+  "comments": 8,
+  "shared": 2
+ },
+ "publishedAt": "2026-11-01T09:00:00+08:00",
+ "ipLocation": "辽宁",
+ "noteType": "normal",
+ "collectedAt": "2026-11-05T12:05:00+08:00",
+ "sourceUrl": "https://www.xiaohongshu.com/"
+}

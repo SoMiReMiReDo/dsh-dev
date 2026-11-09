@@ -1,0 +1,75 @@
+{
+ "slug": "hynix-dalian",
+ "company": "SK海力士",
+ "city": "大连",
+ "role": "工艺 / 设备 / 整合",
+ "topic": "海力士 大连 面经",
+ "titleMain": "SK海力士（大连）",
+ "titleThin": "面试准备手册",
+ "pageTitle": "SK海力士（大连）面试准备手册 · 面经汇总",
+ "brand": "SK海力士 · 大连面经",
+ "themeKey": "skhynix-theme",
+ "storageKey": "skhynix",
+ "sourceLabel": "小红书",
+ "dateRange": "2025.09—2026.11",
+ "timelineTitle": "27 届秋招真实时间线（含春招）",
+ "englishPage": "",
+ "accent": "#d81f3f",
+ "accentSoft": "#fdeef1",
+ "accentLine": "#f6c9d3",
+ "offtopicLabel": "非主题 · 同业对比",
+ "keywords": {
+  "core": [
+   "海力士 大连 面经",
+   "hynix 大连 面经",
+   "sk海力士 大连 面试"
+  ],
+  "expanded": [
+   "海力士 大连 一面",
+   "海力士 大连 二面",
+   "海力士 大连 hr面",
+   "海力士 offer 大连",
+   "海力士 校招 大连"
+  ],
+  "searchMatch": [
+   "海力士",
+   "hynix",
+   "sk海力士"
+  ]
+ },
+ "topicPattern": "海力士|hynix|sk海力士",
+ "tagRules": [
+  {
+   "name": "流程",
+   "pattern": "流程|几面|轮|环节|宣讲|投递|网申"
+  },
+  {
+   "name": "一面",
+   "pattern": "一面|初面"
+  },
+  {
+   "name": "二面",
+   "pattern": "二面|复试"
+  },
+  {
+   "name": "HR面",
+   "pattern": "hr面|人力"
+  },
+  {
+   "name": "终面",
+   "pattern": "终面|三面"
+  },
+  {
+   "name": "岗位",
+   "pattern": "pie|ye|ee|设备|工艺|技术员|质量|可靠性|选岗|module"
+  },
+  {
+   "name": "薪资",
+   "pattern": "薪资|待遇|月薪|年薪|工资|offer|13薪"
+  },
+  {
+   "name": "英文",
+   "pattern": "英文|英语|english"
+  }
+ ]
+}

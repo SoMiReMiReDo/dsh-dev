@@ -2,3 +2,7 @@ node_modules/
 .DS_Store
 *.log
 xhs-check/data/
+
+# Python（interview-research skill 自测/脚本）
+__pycache__/
+*.pyc

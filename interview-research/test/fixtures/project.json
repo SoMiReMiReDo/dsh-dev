@@ -1,0 +1,61 @@
+{
+ "slug": "example-semi-dalian",
+ "company": "示例半导体",
+ "city": "大连",
+ "role": "工艺 / 设备",
+ "topic": "示例半导体 大连 面经",
+ "titleMain": "示例半导体（大连）",
+ "titleThin": "面试准备手册",
+ "pageTitle": "示例半导体（大连）面试准备手册 · 面经汇总",
+ "brand": "示例半导体 · 大连面经",
+ "themeKey": "example-semi-theme",
+ "storageKey": "example-semi",
+ "sourceLabel": "小红书",
+ "dateRange": "2026.09—2026.11",
+ "timelineTitle": "2027 届秋招真实时间线",
+ "englishPage": "",
+ "accent": "#1f5fd1",
+ "accentSoft": "#edf2fd",
+ "accentLine": "#cddbfa",
+ "offtopicLabel": "非主题 · 同业对比",
+ "keywords": {
+  "core": [
+   "示例半导体 大连 面经"
+  ],
+  "expanded": [],
+  "searchMatch": [
+   "示例半导体"
+  ]
+ },
+ "topicPattern": "示例半导体",
+ "tagRules": [
+  {
+   "name": "流程",
+   "pattern": "流程|几面|轮|环节"
+  },
+  {
+   "name": "一面",
+   "pattern": "一面"
+  },
+  {
+   "name": "二面",
+   "pattern": "二面"
+  },
+  {
+   "name": "HR面",
+   "pattern": "hr面"
+  },
+  {
+   "name": "岗位",
+   "pattern": "工艺|设备|良率"
+  },
+  {
+   "name": "薪资",
+   "pattern": "薪资|待遇|offer"
+  },
+  {
+   "name": "英文",
+   "pattern": "英文|英语"
+  }
+ ]
+}

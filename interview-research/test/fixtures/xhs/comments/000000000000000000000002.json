@@ -1,0 +1,23 @@
+{
+ "noteId": "000000000000000000000002",
+ "comments": [
+  {
+   "type": "comment",
+   "id": "c3",
+   "noteId": "000000000000000000000002",
+   "parentId": null,
+   "content": "技术面问了刻蚀和薄膜的区别。",
+   "author": {
+    "id": "u7",
+    "nickname": "EE"
+   },
+   "likeCount": 5,
+   "createdAt": "2026-11-02T08:00:00+08:00",
+   "ipLocation": "辽宁",
+   "subCommentCount": 0,
+   "subComments": []
+  }
+ ],
+ "collectedAt": "2026-11-05T12:08:00+08:00",
+ "sourceUrl": "https://www.xiaohongshu.com/"
+}
