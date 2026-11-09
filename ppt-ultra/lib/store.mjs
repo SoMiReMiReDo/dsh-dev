@@ -40,7 +40,7 @@ export class Store {
   }
   view(r) {
     const project = snap => snap && ({ document:snap.document,rendered:{...snap.rendered,images:snap.rendered.images.map(i=>({page:i.page,url:this.assetUrl(r,i.path)}))} })
-    return {id:r.id,name:r.name,sessionId:r.sessionId,revision:r.revision,updatedAt:r.updatedAt,clarification:r.clarification || null,busy:this.locks.has(r.id),current:project(r.current),before:project(r.proposal?.before || r.comparison || r.current),after:project(r.proposal?.candidate || r.current),proposal:r.proposal && {id:r.proposal.id,operations:r.proposal.operations,checks:r.proposal.checks,affected:r.proposal.affected,ready:r.proposal.ready},history:r.history.map((h,i)=>({round:i+1,operations:h.operations,affected:h.affected,at:h.at})),exportable:r.history.length>0 && !r.proposal && r.current.rendered.ok}
+    return {id:r.id,name:r.name,sessionId:r.sessionId,sourcePath:r.sourcePath,revision:r.revision,updatedAt:r.updatedAt,clarification:r.clarification || null,busy:this.locks.has(r.id),current:project(r.current),before:project(r.proposal?.before || r.comparison || r.current),after:project(r.proposal?.candidate || r.current),proposal:r.proposal && {id:r.proposal.id,operations:r.proposal.operations,checks:r.proposal.checks,affected:r.proposal.affected,ready:r.proposal.ready},history:r.history.map((h,i)=>({round:i+1,operations:h.operations,affected:h.affected,at:h.at})),exportable:r.history.length>0 && !r.proposal && r.current.rendered.ok}
   }
   assetUrl(r,path) { return '/api/ppt-ultra.asset?'+new URLSearchParams({id:r.id,sessionId:r.sessionId,asset:Buffer.from(path).toString('base64url')}) }
   async asset({id,sessionId,asset}) {

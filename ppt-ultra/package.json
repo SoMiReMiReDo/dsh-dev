@@ -1,9 +1,9 @@
 {
   "name":"dsh-ppt-ultra","version":"0.1.0","private":true,"type":"module",
-  "description":"PPTX 精准编辑工作台：对照预览、批量应用、校验、撤销与可编辑文件导出。",
+  "description":"PPTX 精准编辑工作台：仓库/文件选择、对话式修改、对照预览、批量应用与可编辑文件导出。",
   "main":"index.js",
   "exports":{".":"./index.js","./client":"./client.js","./icon":"./icon.svg","./locale/*.json":"./locale/*.json","./package.json":"./package.json"},
-  "files":["index.js","client.js","lib","python","profile","locale","icon.svg","cordis.patch.yml"],
+  "files":["index.js","client.js","lib","python","locale","icon.svg","cordis.patch.yml"],
   "dsh":{"bundle":{"patch":"./cordis.patch.yml"},"client":{"platform":"web","immediately":true,"inject":["@deepseek-ai/dsh-api-session-controller","@deepseek-ai/dsh-client-ui-conversation"]}},
   "engines":{"node":">=22.19.0","dsh":">=0.2.1-rc.5 <0.3.0-0"},
   "scripts":{"test":"node --test test/*.test.mjs","test:python":"python3 -m unittest discover -s test -p '*_test.py'","dev":"node scripts/dev-server.mjs"}

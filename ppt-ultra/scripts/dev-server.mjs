@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { apply } from '../index.js'
 const root=dirname(dirname(fileURLToPath(import.meta.url))),routes=new Map(),effects=[]
-const ctx={connection:{fetch:{register:route=>{routes.set(route.path,route);return()=>routes.delete(route.path)}}},tools:{register:()=>()=>{}},effect:fn=>{effects.push(fn())}}
+const ctx={connection:{fetch:{register:route=>{routes.set(route.path,route);return()=>routes.delete(route.path)}}},tools:{register:()=>()=>{}},effect:fn=>{effects.push(fn())},on:()=>()=>{},workspaceRegistry:{list:()=>[{id:'dev-workspace',title:'dsh-dev',path:root}]},sessions:{get:()=>undefined},agents:{get:()=>undefined}}
 await apply(ctx,{dataDir:process.env.PPT_ULTRA_DATA || join(tmpdir(),'ppt-ultra-dev-data')})
 // Reuse the React version from installed DSH; no CDN or downloaded runtime.
 async function runtimeAssets(){
@@ -21,7 +21,7 @@ async function runtimeAssets(){
   return assets
 }
 const assets=await runtimeAssets()
-const html=`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PPT Ultra · 本地验证</title><body><div id="root"></div><script type="module">import {modules} from '/runtime.js';const registry=modules();window.__ModuleLoader__={load({factory}){const plugin=factory(name=>registry[name]);const React=registry.react;registry['react-dom/client'].createRoot(document.getElementById('root')).render(React.createElement(plugin.Workbench,{sessionId:'dev-session',onClose:()=>location.reload()}));}};await import('/client.js');</script></body></html>`
+const html=`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PPT Ultra · 本地验证</title><style>html,body,#root{height:100%;margin:0}#root{display:flex;flex-direction:column}</style><body><div id="root"></div><script type="module">import {modules} from '/runtime.js';const registry=modules();window.__ModuleLoader__={load({factory}){const plugin=factory(name=>registry[name]);const React=registry.react;registry['react-dom/client'].createRoot(document.getElementById('root')).render(React.createElement(plugin.Workbench,{sessionId:'dev-session',sessionTitle:'本地验证对话',sessionReady:false,sessionCwd:'/Users/seal/Desktop/myNote/dsh-dev',onExit:()=>location.reload(),onNewConversation:async()=>{throw new Error('开发服务器不支持新建对话')}}));}};await import('/client.js');</script></body></html>`
 const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,'http://127.0.0.1'),route=routes.get(url.pathname)

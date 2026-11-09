@@ -1,6 +1,6 @@
 # PPT Ultra 项目记忆
 
-更新：2026-11-08（Asia/Shanghai，下午）。状态：desktop Profile 的 `ppt-edit` 预设故障已修复；Profile 级入口（选中预设自动打开工作台）已实现；独立 `ppt-ultra` Profile 已创建；测试全绿。PowerPoint 原生保真与真实模型端到端仍未验收。
+更新：2026-11-09（Asia/Shanghai）。状态：入口/退出与右侧面板均已按用户确认改版。工作台为 DSH 左侧栏入口 + 主区域页面；右侧只有「文件选择 / 对话」两个 tab，支持仓库浏览、按路径打开 PPTX、对话式修改与新建对话；`ppt-edit` 预设与独立 Profile 已移除。真实 Host 上的入口、文件选择、打开 18 页样稿、新建对话与退出恢复已用 headless Chrome 验证。PowerPoint 原生保真与真实模型完整端到端仍未验收。
 
 ## 用户确认的范围与决策
 
@@ -10,14 +10,17 @@
 - 保留原字体设置。缺失字体显示提醒，允许用户看预览并确认后应用、导出；不自动替换文件中的字体名或安装字体。
 - 用户明确选择使用现有已登录 DSH 安装验证。已安装到 `desktop` Profile；授权无需重复询问。
 - 用户偏好中文、取舍细节并总结；追问后再展开。
-- 交付形态：用户要求是 Profile 级体验——在新会话/新工作区里选择模式，而不是从顶栏插件按钮点击进入。已确认方案：(1) desktop Profile 内选中「PPT 编辑」预设后工作台自动作为会话界面打开，顶栏按钮仅作手动开关；(2) 同时交付独立 `ppt-ultra` Profile（默认预设 `ppt-edit`）。新建工作区只需在其中的新会话选择预设，不改造工作区创建 UI。
+- 交付形态（2026-11-09 用户重新确认）：放弃「预设/Profile 级入口」与全屏覆盖层。工作台改为 DSH 左侧栏常驻「PPT 工作台」页面（`sidebar.panellist` + `main` keyed 面板），点一次进入；Agent 打开文稿或用户打开/拖入 PPTX 时自动进入；右上角「导出 PPTX」+ 分隔线 +「← 退出 PPT」返回对话。预设 `ppt-edit` 与独立 `ppt-ultra` Profile 都移除，回归普通会话。
 - 项目文档应放在 `ppt-ultra`。当前会话 cwd 为仓库根 `/Users/seal/Desktop/myNote/dsh-dev`，写权限覆盖整个仓库；不要把项目产物写入相邻的 side-chat。
 
 ## 产品与实现约定
 
 - 首版支持 text、image、align、distribute、resize 五类操作。
-- 工作台是 Profile/Preset 级入口：新建会话选择「PPT 编辑」后自动打开工作台（每会话一次），顶栏按钮仅作手动开关；独立 `ppt-ultra` Profile 默认预设即 `ppt-edit`。
-- 工作台包含页面导航、同倍率上下前后对照、对象多选、可编辑操作清单、变更记录和检查页签；窄屏默认单页切换。
+- 工作台是根级页面入口：左侧栏「PPT 工作台」一行 + `main` keyed 面板；不再由 Agent 预设或会话顶栏按钮触发。退出通过右上角「退出 PPT」调用 `layout.selectPanel(null)` 返回对话。
+- 工作台包含页面导航、同倍率上下前后对照、画布对象点选、右侧「文件选择 / 对话」两个 tab；窄屏默认单页切换，右侧面板作为页面内抽屉。
+- 右侧「文件选择」：DSH 工作区仓库下拉 + 面包屑目录浏览，只列目录与 .pptx；打开时可选「打开时新建对话」。
+- 右侧「对话」：绑定一个 DSH Session，轮询 Host `conversation` 路由显示消息/流式回复/运行态；「新建对话」用 `sessions.create` 新建 Session 并切换；切换时用文稿 `sourcePath` 在新会话重开。Agent 的 propose 结果以「待应用修改」卡片展示，由用户勾选后应用/取消，已应用可撤销。
+- Host 新增受认证 POST 路由：`workspaces`、`browse`、`openPath`、`conversation`；browse/openPath 只接受已注册工作区内的真实路径，openPath ≤50MiB。
 - Agent 仅打开、读取、提出操作或要求澄清。应用与导出由用户在工作台触发。
 - 采用稳定页面 ID + 对象 ID、文稿 SHA-256、对象 fingerprint 拒绝过时提交。
 - 每轮写临时副本，检查非目标部件与对象、重开并渲染后才发布草稿。原稿与历史快照保留；撤销回到上一轮草稿。
@@ -29,15 +32,19 @@
 
 首版代码与本地流程已实现，尚未完成最终保真验收。
 
-desktop Profile 已配置完成：bundle 已安装并启用，`ppt-ultra`、`preset-ppt-edit` 两个 Loader 行为 active，4 个 Agent 工具当前可见，工作台顶栏入口已在活动 Client 中注册（`conversation.session.header.actions` 的 `ppt-ultra`）。
+desktop Profile 已配置完成：bundle 已安装并启用，`ppt-ultra` Loader 行 active，4 个 Agent 工具当前可见；Client 入口是 `sidebar.panellist` 的「PPT 工作台」与 `main` keyed 面板，`conversation.session.header.actions` 的临时按钮已删除。
 
-新会话预设菜单缺少 `ppt-edit` 的原因已确认并修复：预设把 `@deepseek-ai/dsh-compaction-basic` 直接作为 preset plugin 挂载，注册表审计报 `Preset services require isolate realms: compaction`，定义进入 broken 状态；Web 端 `presetOptions()` 只展示 `broken === undefined` 的预设，因此菜单只剩 4 项。修复方式是在 `cordis.patch.yml` 中用 `cordis:group` + `isolate.compaction: true` 包住 `compaction-basic`，与官方 `minimal` 预设一致；通过 `plugin_manager set_bundle` 关闭再启用即时重载后，`agentPresets.list` 不再返回 broken，`agentPresets.read ppt-edit` 返回完整 composition。
+2026-11-09 已按用户决定移除 `ppt-edit` 预设（连同独立 `ppt-ultra` Profile）。`cordis.patch.yml` 只保留 `ppt-ultra` Host 行；desktop Profile 重载后 `agentPresets/list` 只剩 standard/ptc/minimal/cordis。此前预设 `broken` 问题的修复记录只作为历史；不要再把预设加回入口链路。
 
-当前测试：Node 状态测试 6 项、Python 编辑/保真测试 7 项（2026-11-08 重跑）全部通过。
+当前测试：Node 测试 10 项（2026-11-09：状态 6 + 预览路由 1 + Client 入口 1 + 新 Host 路由 1 + browse 越界 1）、Python 编辑/保真测试 7 项（2026-11-08 重跑）全部通过。
 
-Profile 级入口已实现：`client.js` 把工作台注册为会话级 `conversation.input.dock` 入口，并在会话预设为 `ppt-edit` 时自动打开（每个会话一次）；`conversation.session.header.actions` 的按钮改为手动开关。headless Chrome 已验证独立 Profile 的空白会话从「标准模式」切到「PPT 编辑」后工作台自动打开、无 JS 报错。
+2026-11-08 晚修复预览裂图：`/api/ppt-ultra.asset` 是精确 GET 路由，未声明 `requestBody: 'buffered'` 时 DSH connection bridge 按 streaming 处理，`new Request(GET, {body})` 抛错后被 web 服务器统一回 400，所有 `<img>` 预览裂图。已修复并新增 `test/host-routes.test.mjs` 防回归；在真实 Host 上验证 18/18 资源请求 200。工作台 UI 同轮改版：加载态居中显示、预览图加载/失败占位与重试、对象可读名称、滚动条与整体视觉（2026-11-09 起改为页面级布局，顶栏不再模拟 macOS 红绿灯）。
 
-独立 Profile 已创建于 `~/.dsh/profiles/ppt-ultra`：bundle 清单含 `dsh-ppt-ultra`，`cordis.patch.yml` 把 `agent-preset-registry.default` 设为 `ppt-edit`；启动命令 `dsh --profile ppt-ultra`（Web 界面）。
+右侧面板（文件选择 / 对话）已实现并实测：Host 新增 `workspaces`、`browse`、`openPath`、`conversation` 4 个受认证 POST 路由；Client 右侧只保留两个 tab，对话绑定 DSH Session、可新建对话，Agent 提案以「待应用修改」卡片展示（应用/取消/撤销）。headless Chrome（桌面端真实 Host）验证：10 个工作区可选、目录浏览到 `ppt-ultra/test/fixtures`、打开 18 页样稿（18 缩略图 + 主画布预览）、新建对话、退出再进入恢复文稿与会话、无 JS 报错。
+
+页面级入口已实现并实测：`client.js` 注册 `sidebar.panellist`（label「PPT 工作台」）+ `main` keyed 面板 + `shell.overlay` 文稿监听器。headless Chrome（桌面端真实 Host、已登录 cookie）验证：侧栏入口出现并选中、页面铺满主面板（1440 窗口侧栏展开时 1160×900）、退出回对话、再次进入恢复文稿、`/api/ppt-ultra.open` 后 3 秒内自动切换、侧栏收起后页面全宽、顶栏避开 macOS 48px 顶部条、无 JS 报错。
+
+独立 Profile 已按用户决定移除：仓库内 `profile/` 目录、`~/.dsh/profiles/ppt-ultra` 和 `cordis.patch.yml` 的预设声明均删除；只用现有 desktop Profile。
 
 5 份用户参考文稿均已做精准编辑结构测试；原版含 13 个带 timing 的幻灯片 XML，参考文稿不含原生图表和 SmartArt。另用生成样稿测试原生图表、备注及共享图片保留。
 
