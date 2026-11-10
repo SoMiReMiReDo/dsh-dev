@@ -79,15 +79,22 @@ def warn(msg):
     sys.stderr.write("警告：" + msg + "\n")
 
 
-def load_json(path, default=None):
+def load_json(path, default=None, strict=True):
+    """读取 JSON；strict=False 时坏文件返回 default 并警告（用于可跳过的辅助数据）。"""
     if not os.path.exists(path):
         return default
     try:
         with open(path, encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError as e:
+        if not strict:
+            warn(f"跳过损坏的 JSON：{path}（第 {e.lineno} 行第 {e.colno} 列：{e.msg}）")
+            return default
         die(f"JSON 损坏：{path}（第 {e.lineno} 行第 {e.colno} 列：{e.msg}）。修复或从备份恢复后重试。")
     except OSError as e:
+        if not strict:
+            warn(f"无法读取：{path}（{e}）")
+            return default
         die(f"无法读取：{path}（{e}）")
 
 

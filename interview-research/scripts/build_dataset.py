@@ -76,10 +76,8 @@ def match_search(query, search_match):
 def list_searches(data_dir, search_match):
     out, skipped = [], []
     for path in sorted(glob.glob(os.path.join(data_dir, "searches", "*.json"))):
-        try:
-            doc = C.load_json(path) or {}
-        except (OSError, json.JSONDecodeError):
-            C.warn(f"跳过损坏的搜索结果：{path}")
+        doc = C.load_json(path, strict=False) or {}
+        if not doc:
             continue
         if not match_search(doc.get("query"), search_match):
             skipped.append({"file": os.path.basename(path), "query": doc.get("query")})

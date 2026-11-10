@@ -148,6 +148,14 @@ def validate(workdir):
     if inter:
         rep.warn(f"filteredNotes 与 emptyNotes 有交集：{sorted(inter)[:10]}")
 
+    # 报告图片必须本地：检查 notes[].localImages 不是外链/绝对路径，且文件存在
+    for i, n in enumerate(notes):
+        for rel in n.get("localImages") or []:
+            if re.match(r"^(?:https?:)?//", str(rel)) or os.path.isabs(str(rel)):
+                rep.err(f"notes[{i}].localImages 含非本地路径：{rel}（报告必须离线可用）")
+            elif not os.path.exists(os.path.join(workdir, str(rel))):
+                rep.warn(f"notes[{i}].localImages 文件不存在：{rel}（图片可能在采集时未下载成功）")
+
     checklist = content.get("checklist") or []
     if checklist and not all(isinstance(x, str) for x in checklist):
         rep.err("checklist 必须是字符串数组")

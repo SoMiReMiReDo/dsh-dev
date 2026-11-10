@@ -104,7 +104,7 @@ python3 "<skill>/scripts/render_report.py" --dir "<workdir>"   # report.html（�
 
 ### 阶段 6 · 验收（不能只看"生成了"）
 
-1. `python3 -m unittest discover -s test`（skill 自测，确认脚本没被改坏）
+1. `python3 -m unittest discover -s "<skill>/test" -v`（skill 自测，确认脚本没被改坏）
 2. `validate_content.py --strict` 通过
 3. 起本地静态服务（`python3 -m http.server 8877 --bind 127.0.0.1 --directory "<workdir>"`）后用 `inner_chrome_open` 打开 `http://127.0.0.1:8877/report.html`，或直接用 headless Chrome 截图；检查：浅色对比度、导航、题目搜索/筛选、来源跳转、图片、575px/390px 窄屏、打印样式。**内置浏览器只接受 http(s)，不要用 file://**
 4. 统计核对：页面数字 = `meta.json` 数字；抽查 3-5 条 `source` 跳转是否命中对应原帖；问题数 = 各分类之和
@@ -146,7 +146,7 @@ python3 "<skill>/scripts/render_report.py" --dir "<workdir>"   # report.html（�
 ## 安装与自检
 
 - 一条命令安装 skill + 依赖插件（xhs-check + inner-chrome）：在仓库根目录 `bash install.sh --profile desktop`，或 `curl -fsSL https://raw.githubusercontent.com/SoMiReMiReDo/dsh-dev/dev/interview-research/install.sh | bash`；装完重启 DSH 并**新开会话**。
-- skill 自检：`python3 -m unittest discover -s test -v`
+- skill 自检：`python3 -m unittest discover -s "<skill>/test" -v`
 - 依赖缺失（无 `xhs_*` 工具）时：先装插件，不要用 CDP/自研脚本硬爬。
 - web-only 场景：跳过阶段 1-2 的 xhs 采集，用 `web_search`/`web_fetch`/`inner_chrome_*` 收集公开面经 → 手工整理成等价的 `data/notes.json`（可用 `build_dataset.py --xhs-data` 的目录约定仿写）后继续 阶段 4-7。
 

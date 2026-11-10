@@ -86,7 +86,7 @@ python3 "<skill>/scripts/digest.py" --dir "<workdir>"                        # �
 
 - 数据 / 模板分离：`project.json` + `data/*.json` + `content.json` 是输入；`report.html`/`面试摘要.md` 是生成物。
 - 改配色/结构/文案：改模板（或复制模板到项目里改），重新生成；如果用户在页面上直接改了 HTML，要在交付前合并回模板，否则下次重生成会丢。
-- 图片必须本地：`data/images/`，由 `build_dataset.py` 下载；交付前检查 `report.html` 里没有 `https?://` 形式的图片/脚本/样式引用（`grep -oE '(src|href)="https?://[^"]+' report.html` 应为空）。
+- 图片必须本地：`data/images/`，由 `build_dataset.py` 下载。交付前用 `validate_content.py` 检查 `notes[].localImages` 均为本地相对路径且文件存在；渲染后可用 CDP 断言 `performance.getEntriesByType('resource')` 的 URL 全部同源（页面图片/来源链接由 JS 运行时生成，静态 grep `report.html` 查不到外链，不能作为检查手段）。
 
 ## 5. 自定义英文面试练习页（可选）
 

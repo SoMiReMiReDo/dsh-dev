@@ -689,6 +689,7 @@ function noteCard(n) {
   return `<article class="ncard" id="note-${n.idx}">
     <div class="nmeta"><span class="au">${esc(n.author || '')}</span><span>${esc(n.publishedShort || '')}</span>${n.ip ? `<span>IP ${esc(n.ip)}</span>` : ''}
       ${n.offtopic === true ? `<span class="tag warn">${esc(PROJECT.offtopicLabel || '非主题 · 同业对比')}</span>` : ''}
+      ${n.droppedFromData === true ? '<span class="tag warn">数据中已缺失</span>' : ''}
       <span class="tag">赞 ${fmt(st.liked)}</span><span class="tag">评 ${fmt(st.comments)}</span><span class="tag">藏 ${fmt(st.collected)}</span>
       <a href="${esc(n.url || '#')}" target="_blank" rel="noopener" style="margin-left:auto;font-size:12.5px">原帖 ↗</a></div>
     <h3 class="ntitle"><a href="${esc(n.url || '#')}" target="_blank" rel="noopener">${esc(n.title || '（无标题）')}</a></h3>

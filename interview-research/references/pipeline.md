@@ -60,13 +60,15 @@ python3 "<skill>/scripts/build_dataset.py" --dir "<workdir>" --xhs-data "<dataDi
 
 产出：
 - `data/notes.json`：合并 searches/notes/comments，按 noteId 去重，保留旧序号、新笔记追加，补 `tags2`（标签规则）、`offtopic`（是否偏题）、`publishedShort`；
-- `data/meta.json`：关键词命中表、笔记/评论/图片计数、missing 清单、日期范围、标签计数、noteIndex；
+- `data/meta.json`：关键词命中表、笔记/评论/图片计数、missing 清单、日期范围、标签计数、noteIndex；诊断字段 `searchFiltered`（被 `keywords.searchMatch` 过滤的搜索文件）、`retainedMissingFromData`（本次数据里不存在、为稳定序号保留的旧笔记）；
 - `data/digest-01.md…`：分块文本（默认每块 ≤60k 字符），供抽取阅读；
 - `data/images/`：配图本地化（并发 8、Referer、重试 3 次、>800B 校验；失败不阻断）。
 
 要点：
 - **图片采集后尽快跑这一步**：小红书 CDN 带时间签名，过期 403 无法补下。
 - 序号即契约：`content.json` 的 `source:[n]` 是 `notes.json` 下标。脚本保证旧序不变、新笔记追加；本次数据里不存在的旧笔记会保留占位（`droppedFromData`）以稳定序号。手工改 `notes.json` 顺序前先想清楚所有引用。
+
+`--max-images N` 用于控制图片下载量上限（调试/离线快速验证）：`meta.imageTotal = min(计划下载数, N)`，超出预算的笔记 `images` 置空；已有本地图片会复用，不会被清空。
 
 ## 5. 阶段 3B（仅路线 B）：公网数据手工落盘
 
@@ -114,7 +116,7 @@ python3 "<skill>/scripts/render_report.py" --dir "<workdir>" # report.html（主
 
 ```bash
 python3 "<skill>/scripts/validate_content.py" --dir "<workdir>" --strict
-python3 -m unittest discover -s test -v        # skill 自测（脚本没被改坏）
+python3 -m unittest discover -s "<skill>/test" -v   # skill 自测（脚本没被改坏）
 ```
 
 渲染层（有 `node` + Chrome 时最稳）：

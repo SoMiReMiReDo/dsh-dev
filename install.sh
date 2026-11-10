@@ -191,11 +191,8 @@ bundles = ((doc.get("dsh") or {}).get("profile") or {}).get("bundles") or []
 sys.exit(0 if (name in deps and name in bundles) else 1)
 PY
   else
-    # 没有 python3 时无法可靠区分 deps 与 bundles：按“未安装”处理，让 CLI 幂等重装；
-    # 只有明确同时出现在依赖与 bundles 列表里才算已安装（grep 近似判断）。
-    if grep -q "\"$1\"" "$manifest" && grep -q "dsh-$1" "$manifest"; then
-      return 1
-    fi
+    # 没有 python3 时无法可靠解析 profile manifest：统一按“未安装”处理，
+    # 让 dsh CLI 幂等重装（可能多一次 add，但不会漏装）；--check 会报告未安装。
     return 1
   fi
 }
