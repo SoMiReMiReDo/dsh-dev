@@ -151,7 +151,12 @@ def validate(workdir):
     # 报告图片必须本地：检查 notes[].localImages 不是外链/绝对路径，且文件存在
     for i, n in enumerate(notes):
         for rel in n.get("localImages") or []:
-            if re.match(r"^(?:https?:)?//", str(rel)) or os.path.isabs(str(rel)):
+            rel_text = str(rel)
+            if (
+                re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", rel_text)  # https:/file:/data: 等任意 scheme
+                or rel_text.startswith("//")  # 协议相对
+                or os.path.isabs(rel_text)
+            ):
                 rep.err(f"notes[{i}].localImages 含非本地路径：{rel}（报告必须离线可用）")
             elif not os.path.exists(os.path.join(workdir, str(rel))):
                 rep.warn(f"notes[{i}].localImages 文件不存在：{rel}（图片可能在采集时未下载成功）")
