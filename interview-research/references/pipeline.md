@@ -66,7 +66,7 @@ python3 "<skill>/scripts/build_dataset.py" --dir "<workdir>" --xhs-data "<dataDi
 
 要点：
 - **图片采集后尽快跑这一步**：小红书 CDN 带时间签名，过期 403 无法补下。
-- 序号即契约：`content.json` 的 `source:[n]` 是 `notes.json` 下标。脚本保证旧序不变；手工改 `notes.json` 顺序前先想清楚所有引用。
+- 序号即契约：`content.json` 的 `source:[n]` 是 `notes.json` 下标。脚本保证旧序不变、新笔记追加；本次数据里不存在的旧笔记会保留占位（`droppedFromData`）以稳定序号。手工改 `notes.json` 顺序前先想清楚所有引用。
 
 ## 5. 阶段 3B（仅路线 B）：公网数据手工落盘
 

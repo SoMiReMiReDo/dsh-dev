@@ -30,7 +30,7 @@
 
 ## 3. 模板契约
 
-`render_report.py` 做四类替换（替换失败会报错退出）：
+`render_report.py` 做四类替换；模板缺任一占位符或替换后仍有残留都会报错退出：
 
 | 占位符 | 来源 | 说明 |
 | --- | --- | --- |
@@ -86,7 +86,7 @@ python3 "<skill>/scripts/digest.py" --dir "<workdir>"                        # �
 
 - 数据 / 模板分离：`project.json` + `data/*.json` + `content.json` 是输入；`report.html`/`面试摘要.md` 是生成物。
 - 改配色/结构/文案：改模板（或复制模板到项目里改），重新生成；如果用户在页面上直接改了 HTML，要在交付前合并回模板，否则下次重生成会丢。
-- 图片必须本地：`data/images/`，由 `build_dataset.py` 下载；报告不引用外链图片（`hasExternal` 检查）。
+- 图片必须本地：`data/images/`，由 `build_dataset.py` 下载；交付前检查 `report.html` 里没有 `https?://` 形式的图片/脚本/样式引用（`grep -oE '(src|href)="https?://[^"]+' report.html` 应为空）。
 
 ## 5. 自定义英文面试练习页（可选）
 

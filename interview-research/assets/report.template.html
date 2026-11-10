@@ -426,7 +426,7 @@ html[data-theme="dark"] ::selection{background:rgba(255,92,115,.3);color:#ffe3e8
         <span class="tag">笔记 <b id="mN"></b></span>
         <span class="tag">评论 <b id="mC"></b></span>
         <span class="tag">图片 <b id="mI"></b></span>
-        <span class="tag">采集时间 <b id="mT"></b></span>
+        <span class="tag">构建时间 <b id="mT"></b></span>
       </div>
       <table id="qTable"></table>
     </div>
@@ -483,7 +483,7 @@ function initHero() {
   const lk = META.totalLikes || 0;
   const p = PROJECT;
   const where = [p.company, p.city && `（${p.city}）`, p.role && ` · ${p.role}`].filter(Boolean).join('');
-  $('#ebDate').textContent = '采于 ' + String(META.builtAt || '').slice(0, 10);
+  $('#ebDate').textContent = '构建于 ' + String(META.builtAt || '').slice(0, 10);
   $('#lede').textContent = `把 ${nc} 篇${p.sourceLabel || '小红书'}笔记和 ${cc} 条评论里关于${where || '目标岗位'}的面试信息重新归并：流程、真实问题、岗位差异、薪资与出结果节奏，一篇看完直接带着去面试。`;
   $('#stats').innerHTML = [
     ['面经笔记', fmt(nc), '篇', 'hl'],
@@ -500,8 +500,12 @@ function initHero() {
     ['岗位动机题几乎必问', '「为什么选这家公司 / 这个城市 / 这个岗位」需要结合行业、公司与个人规划准备一版有说服力的答案。'],
     ['专业基础不准备会吃亏', '围绕岗位 JD 的核心知识过一遍；不懂就坦白并说思路，别硬编。'],
   ];
+  const usedFallback = !tk.length;
   const items = tk.length ? tk : fallback.map(([a, b]) => ({t: a, d: b}));
-  $('#takeaways').innerHTML = items.slice(0, 6).map((x, i) => `<div class="tk"><span class="i">0${i + 1}</span><span><b>${esc(x.t || '')}</b>${x.d ? '：' + esc(x.d) : ''}</span></div>`).join('');
+  const fallbackNote = usedFallback
+    ? `<div class="tk" style="grid-column:1/-1;border-left-color:var(--muted)"><span class="i">i</span><span>以下为通用准备建议（content.json 未提供 takeaways，非面经数据）</span></div>`
+    : '';
+  $('#takeaways').innerHTML = fallbackNote + items.slice(0, 6).map((x, i) => `<div class="tk"><span class="i">0${i + 1}</span><span><b>${esc(x.t || '')}</b>${x.d ? '：' + esc(x.d) : ''}</span></div>`).join('');
 
   const ov = CONTENT.overview;
   $('#overviewText').innerHTML = ov ? esc(ov).replace(/\n/g, '<br>') : '<span style="color:var(--muted)">（待补充）</span>';
@@ -625,6 +629,10 @@ function initTips() {
   $('#pitList').innerHTML = pit.map((t) => `
     <div class="li warn"><span class="b">!</span><div>${esc(t.text || '')}${srcHtml(t.source)}</div></div>`).join('') || '<div class="empty">暂无</div>';
 
+  if (!(CONTENT.checklist && CONTENT.checklist.length)) {
+    const t = $('#checkTitle');
+    if (t && !/通用建议/.test(t.textContent)) t.textContent += '（通用建议）';
+  }
   const saved = readChecks();
   $('#checkList').innerHTML = CHECKS.map((c, i) => `<label><input type="checkbox" data-i="${i}" ${saved.includes(i) ? 'checked' : ''}><span>${esc(c)}</span></label>`).join('');
   $('#checkList').addEventListener('change', () => {

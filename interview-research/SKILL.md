@@ -49,7 +49,7 @@ python3 "<skill>/scripts/init_project.py" --dir "<workspace>/<slug>" \
 
 ### 阶段 1 · 多关键词检索（保证覆盖，不宣称穷举）
 
-- 先读 `references/xhs-collection.md` 的**关键词矩阵**，按「核心词 / 轮次 / 岗位 / 结果状态 / 英文 / 站点 / 年份」组合出 **15-30 组**关键词。
+- 先读 `references/xhs-collection.md` 的**关键词矩阵**，按「核心词 / 轮次 / 岗位 / 结果状态 / 英文 / 站点 / 年份」组合出 **12-30 组**关键词（历史实战 16-27 组）。
 - 每组用 `xhs_collect(mode="search", keyword=..., sort="default|latest|popular", limit=40)`；`latest` 用于抓新帖，`popular` 补高赞帖。搜索结果的 JSON 落盘在 xhs-check 的 `data/searches/`。
 - 搜索只用于发现：**去重、记录 noteId + xsec_token**。同一笔记可能命中多组关键词，后续按 noteId 去重。
 - 把实际执行的完整关键词表写回 `project.json` 的 `keywords.core/expanded`，并在最终页面「方法」区展示（用户要看数据怎么来的）。
@@ -58,7 +58,7 @@ python3 "<skill>/scripts/init_project.py" --dir "<workspace>/<slug>" \
 ### 阶段 2 · 逐篇采集详情与评论
 
 - 对去重后的每一篇：`xhs_collect(mode="note", url="https://www.xiaohongshu.com/explore/<id>?xsec_token=<token>")`。**必须带 `xsec_token`**，否则可能拿不到详情。
-- `maxComments` 默认 50 已够；评论常补出「几面、多久出结果、问了什么」这类正文没有的信息。
+- `maxComments` 默认用 30（够拿正文 + 关键评论）；评论里常补出「几面、多久出结果、问了什么」这类正文没有的信息，需要评论区取证时用 60（软上限计父+子评论）。
 - 量级大（>60 篇）时用子代理分批并发（每批 30-40 篇、串行调用、不要同时开太多浏览器任务），每个子代理只负责采集与落盘，不写其他文件；最后汇总失败清单。
 - 失败处理：同一篇重试 1 次；仍失败（常见「未捕获笔记接口响应」、订阅 token 失效）记入 missing 清单，不要无限重试。
 - 触发风控（`/api/redcaptcha/...`）时：停止重试，提示用户在内置浏览器里手动过一次验证码，再补采缺失评论/笔记——**不要试图绕过验证码**。
@@ -73,7 +73,7 @@ python3 "<skill>/scripts/build_dataset.py" --dir "<workdir>" --xhs-data "<dataDi
 产出 `data/notes.json`（合并评论、去重、贴标签、标记偏题）、`data/meta.json`（关键词命中/统计/缺失清单/日期范围）、`data/digest-01.md…`（分块文本，供抽取）、`data/images/`。
 
 - **图片采集后尽快本地化**：小红书 CDN 链接带时间签名，过期 403、无法补下。先跑本脚本再慢慢分析。
-- **序号稳定性**：`content.json` 的 `source: [n]` 指向 `notes.json` 下标。脚本保证旧笔记序号不变、新笔记追加末尾；历史引用永远不漂移。
+- **序号稳定性**：`content.json` 的 `source: [n]` 指向 `notes.json` 下标。脚本保证旧笔记序号不变、新笔记追加末尾；本次采集里已不存在的旧笔记也保留占位（标记 `droppedFromData`），避免换 `dataDir`/少采一篇导致后续序号前移。不要手工重排 `notes.json`。
 - 失败图片不阻断流程，`meta.imageTotal` 与 `imageCount` 会给出缺口。
 
 ### 阶段 4 · 结构化抽取（本 skill 的核心）
@@ -83,7 +83,7 @@ python3 "<skill>/scripts/build_dataset.py" --dir "<workdir>" --xhs-data "<dataDi
 `overview / process / questions / positions / timeline / salary / tips / pitfalls / takeaways / checklist / appendix / salaryNote / filteredNotes / emptyNotes`
 
 硬要求：
-- 每条结论尽量带 `source`（笔记序号数组，≤5 个）；日期/数字标「（存疑）」；只写原帖说过的，不脑补通用面经。
+- 每条结论尽量带 `source`（笔记序号数组，≤6 个；页面默认展示前 5 个，超出显示 +N）；日期/数字标「（存疑）」；只写原帖说过的，不脑补通用面经。
 - 问题按类别归并、去重（同一问题只保留一条，来源合并）；过滤无关帖、空帖、广告/题库引流帖，记录到 `filteredNotes`/`emptyNotes`。
 - 抽取完必须校验：
 
@@ -106,7 +106,7 @@ python3 "<skill>/scripts/render_report.py" --dir "<workdir>"   # report.html（�
 
 1. `python3 -m unittest discover -s test`（skill 自测，确认脚本没被改坏）
 2. `validate_content.py --strict` 通过
-3. 用 `inner_chrome_navigate` 打开 `file:///…/report.html`（或让用户打开），`inner_chrome_screenshot` 截图检查：浅色对比度、导航、题目搜索/筛选、来源跳转、图片、移动端窄屏、打印样式
+3. 起本地静态服务（`python3 -m http.server 8877 --bind 127.0.0.1 --directory "<workdir>"`）后用 `inner_chrome_open` 打开 `http://127.0.0.1:8877/report.html`，或直接用 headless Chrome 截图；检查：浅色对比度、导航、题目搜索/筛选、来源跳转、图片、575px/390px 窄屏、打印样式。**内置浏览器只接受 http(s)，不要用 file://**
 4. 统计核对：页面数字 = `meta.json` 数字；抽查 3-5 条 `source` 跳转是否命中对应原帖；问题数 = 各分类之和
 5. 汇报时给：笔记/评论/图片数、缺失清单、问题总数、3-5 条核心发现、页面路径
 
@@ -136,7 +136,7 @@ python3 "<skill>/scripts/render_report.py" --dir "<workdir>"   # report.html（�
 2. 详情链接必须带 `xsec_token`；失败重试 1 次，风控不硬刚。
 3. **图片采集后立即本地化**，避免 CDN 签名过期 403。
 4. `content.json` 是唯一内容源；`面试摘要.md`、`report.html` 永远重新生成。
-5. `source` 用 `notes.json` 下标，≤5 个；序号永久稳定，新笔记只追加。
+5. `source` 用 `notes.json` 下标，≤6 个；序号稳定（旧序保持、新笔记追加、丢失笔记保留占位），不要手工重排。
 6. 只写原帖说过的；推断/二手数字标「（存疑）」；无关/空帖/引流帖过滤并留痕。
 7. 默认**浅色主题**，夜间为可选；打印/导出只走浅色。用户明确要深色才改默认。
 8. 单文件离线：不引外部字体/脚本/图片；图片本地、题目可搜索筛选、来源可跳转。
@@ -145,7 +145,7 @@ python3 "<skill>/scripts/render_report.py" --dir "<workdir>"   # report.html（�
 
 ## 安装与自检
 
-- 一条命令安装 skill + 依赖插件（xhs-check + inner-chrome）：见仓库根目录 `install.sh`（`bash install.sh --profile desktop`）。
+- 一条命令安装 skill + 依赖插件（xhs-check + inner-chrome）：在仓库根目录 `bash install.sh --profile desktop`，或 `curl -fsSL https://raw.githubusercontent.com/SoMiReMiReDo/dsh-dev/dev/interview-research/install.sh | bash`；装完重启 DSH 并**新开会话**。
 - skill 自检：`python3 -m unittest discover -s test -v`
 - 依赖缺失（无 `xhs_*` 工具）时：先装插件，不要用 CDP/自研脚本硬爬。
 - web-only 场景：跳过阶段 1-2 的 xhs 采集，用 `web_search`/`web_fetch`/`inner_chrome_*` 收集公开面经 → 手工整理成等价的 `data/notes.json`（可用 `build_dataset.py --xhs-data` 的目录约定仿写）后继续 阶段 4-7。

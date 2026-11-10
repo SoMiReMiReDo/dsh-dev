@@ -74,7 +74,7 @@ def match_search(query, search_match):
 
 
 def list_searches(data_dir, search_match):
-    out = []
+    out, skipped = [], []
     for path in sorted(glob.glob(os.path.join(data_dir, "searches", "*.json"))):
         try:
             doc = C.load_json(path) or {}
@@ -82,9 +82,15 @@ def list_searches(data_dir, search_match):
             C.warn(f"跳过损坏的搜索结果：{path}")
             continue
         if not match_search(doc.get("query"), search_match):
+            skipped.append({"file": os.path.basename(path), "query": doc.get("query")})
             continue
         out.append((path, doc))
-    return out
+    if skipped:
+        C.warn(
+            f"{len(skipped)} 个搜索文件被 project.json 的 keywords.searchMatch 过滤；"
+            "如要全部纳入，把 searchMatch 设为空数组 []"
+        )
+    return out, skipped
 
 
 def fetch_image(url, dst, retries=3):
@@ -117,39 +123,36 @@ def image_ext(url):
 
 
 def upload_images(notes, image_dir, rel_root, workers=8, enabled=True):
+    """下载/复用本地图片。**不清空已有图片**：小红书 CDN 签名过期后旧图不可重下，
+    因此已存在且大小正常的文件直接复用，只补缺失的。"""
     if not enabled:
         for n in notes:
             n["localImages"] = []
         return 0, 0
-    if os.path.isdir(image_dir):
-        for name in os.listdir(image_dir):
-            if name.endswith((".jpg", ".jpeg", ".png", ".webp")):
-                os.remove(os.path.join(image_dir, name))
     os.makedirs(image_dir, exist_ok=True)
-    jobs = []
+    local, jobs = {}, []
+    planned = 0
     for n in notes:
         for i, url in enumerate(n.get("images") or []):
             if not url:
                 continue
+            planned += 1
             name = f"{n['id']}_{i}{image_ext(url)}"
             dst = os.path.join(image_dir, name)
             rel = os.path.relpath(dst, rel_root).replace(os.sep, "/")
+            if os.path.exists(dst) and os.path.getsize(dst) > 800:
+                local[url] = rel
+                continue
             jobs.append((url, dst, rel))
-    if not jobs:
-        for n in notes:
-            n["localImages"] = []
-        return 0, 0
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        results = list(pool.map(lambda job: fetch_image(job[0], job[1]), jobs))
-    ok = 0
-    local = {}
-    for (url, dst, rel), good in zip(jobs, results):
-        if good and os.path.exists(dst) and os.path.getsize(dst) > 800:
-            ok += 1
-            local[url] = rel
+    if jobs:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            results = list(pool.map(lambda job: fetch_image(job[0], job[1]), jobs))
+        for (url, dst, rel), good in zip(jobs, results):
+            if good and os.path.exists(dst) and os.path.getsize(dst) > 800:
+                local[url] = rel
     for n in notes:
         n["localImages"] = [local[u] for u in (n.get("images") or []) if u in local]
-    return ok, len(jobs)
+    return len(local), planned
 
 
 def note_digest(idx, note, max_desc=2500, max_comments=8, max_comment_chars=200):
@@ -234,7 +237,7 @@ def main(argv=None):
 
     rules = C.compile_rules(project)
     topic = C.topic_pattern(project)
-    searches = list_searches(data_dir, project["keywords"].get("searchMatch") or [])
+    searches, skipped_searches = list_searches(data_dir, project["keywords"].get("searchMatch") or [])
 
     queries = []
     note_index = {}
@@ -292,29 +295,53 @@ def main(argv=None):
         note["publishedShort"] = (note["publishedAt"] or "")[:10]
         notes.append(note)
 
-    # 序号稳定：旧笔记保持原有顺序，新笔记追加在末尾（按发布时间倒序）。
+    # 序号稳定：旧笔记保持原有顺序；本次采集里已不存在的旧笔记保留占位（标记 droppedFromData），
+    # 新笔记追加到末尾（按发布时间倒序）。这样即使换 dataDir / 少采到某篇，历史 source 序号也不漂移。
     old_path = os.path.join(out_dir, "notes.json")
     old_notes = C.load_json(old_path) or []
     order = [n.get("id") for n in old_notes]
+    old_by_id = {n.get("id"): n for n in old_notes}
+    current_by_id = {n["id"]: n for n in notes}
+    retained = []
     if order:
-        rank = {nid: i for i, nid in enumerate(order)}
-        old_part = sorted([n for n in notes if n["id"] in rank], key=lambda n: rank[n["id"]])
-        new_part = [n for n in notes if n["id"] not in rank]
+        merged = []
+        for nid in order:
+            if nid in current_by_id:
+                merged.append(current_by_id[nid])
+            elif nid in old_by_id:
+                old_note = dict(old_by_id[nid])
+                old_note["droppedFromData"] = True
+                merged.append(old_note)
+                retained.append(nid)
+        new_part = [n for n in notes if n["id"] not in set(order)]
         new_part.sort(key=lambda n: n.get("publishedAt") or "", reverse=True)
-        notes = old_part + new_part
-        print(f"序号：保留旧笔记 {len(old_part)} 条，追加新笔记 {len(new_part)} 条")
+        notes = merged + new_part
+        print(f"序号：保留旧笔记 {len(merged) - len(retained)} 条，追加新笔记 {len(new_part)} 条")
+        if retained:
+            C.warn(
+                f"{len(retained)} 篇旧笔记本次采集数据里不存在，已保留占位以稳定序号（标记 droppedFromData）："
+                + "、".join(retained[:5]) + ("…" if len(retained) > 5 else "")
+            )
     else:
         notes.sort(key=lambda n: n.get("publishedAt") or "", reverse=True)
 
-    img_total = sum(len(n.get("images") or []) for n in notes)
+    # 图片预算：显式 --max-images 时按总量截断（后续笔记置空，避免超预算）
     max_images = args.max_images
     if max_images:
         left = max_images
         for n in notes:
-            n["images"] = (n.get("images") or [])[:left]
+            imgs = n.get("images") or []
+            n["images"] = imgs[: max(0, left)]
             left -= len(n["images"])
-            if left <= 0:
-                break
+        print(f"图片预算：最多下载/复用 {max_images} 张")
+    # 兼容旧版本 notes.json 里保留占位的笔记：补齐派生字段，避免下游 KeyError
+    for n in notes:
+        n.setdefault("publishedShort", (n.get("publishedAt") or "")[:10])
+        n.setdefault("tags2", C.tag_note(n, rules))
+        n.setdefault("offtopic", not bool(topic.search(C.text_of_note(n))))
+        n.setdefault("comments", [])
+        n.setdefault("queries", [])
+    img_total = sum(len(n.get("images") or []) for n in notes)
     img_ok, img_jobs = upload_images(
         notes, os.path.join(out_dir, "images"), workdir, enabled=not args.no_images
     )
@@ -342,6 +369,8 @@ def main(argv=None):
         "imageTotal": img_total,
         "totalLikes": sum((n.get("stats") or {}).get("liked") or 0 for n in notes),
         "missing": missing,
+        "searchFiltered": skipped_searches,
+        "retainedMissingFromData": retained,
         "dateRange": date_range,
         "noteTags": [name for name in tag_names if tag_counts.get(name)],
         "tagCounts": tag_counts,
@@ -353,7 +382,7 @@ def main(argv=None):
                 "publishedAt": n["publishedAt"],
                 "liked": (n.get("stats") or {}).get("liked"),
                 "commentTotal": (n.get("stats") or {}).get("comments"),
-                "offtopic": n["offtopic"],
+                "offtopic": n.get("offtopic", False),
             }
             for n in notes
         ],

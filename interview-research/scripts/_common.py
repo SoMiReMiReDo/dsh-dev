@@ -82,8 +82,13 @@ def warn(msg):
 def load_json(path, default=None):
     if not os.path.exists(path):
         return default
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        die(f"JSON 损坏：{path}（第 {e.lineno} 行第 {e.colno} 列：{e.msg}）。修复或从备份恢复后重试。")
+    except OSError as e:
+        die(f"无法读取：{path}（{e}）")
 
 
 def dump_json(path, obj):
@@ -126,6 +131,14 @@ def find_xhs_data(arg, project):
     优先级：--xhs-data 参数 > 环境变量 XHS_DATA / XHS_CHECK_DATA_DIR > project.json 的
     xhsData > 常见安装位置。DSH 里应优先调用 xhs_status 工具拿到 dataDir 再传 --xhs-data。
     """
+    if arg:
+        explicit = os.path.abspath(arg)
+        if not os.path.isdir(os.path.join(explicit, "searches")):
+            die(
+                f"--xhs-data 指向的目录无效（应包含 searches/ 子目录）：{explicit}\n"
+                "  先用 xhs_status 工具确认插件数据目录，再原样传入。"
+            )
+        return explicit
     candidates = []
     for env in ("XHS_DATA", "XHS_CHECK_DATA_DIR"):
         if os.environ.get(env):
@@ -140,8 +153,6 @@ def find_xhs_data(arg, project):
             os.path.expanduser("~/dsh-dev/xhs-check/data"),
         ]
     )
-    if arg:
-        candidates.insert(0, arg)
     for c in candidates:
         if c and os.path.isdir(os.path.join(c, "searches")):
             return os.path.abspath(c)

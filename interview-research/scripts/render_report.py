@@ -81,6 +81,10 @@ def main(argv=None):
 
     data = {"project": project, "meta": meta, "content": content, "notes": notes}
     raw = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    required = ("__PAGE_TITLE__", "__THEME_KEY__", "__STORAGE_KEY__", "/*__DATA__*/")
+    missing = [m for m in required if m not in tpl]
+    if missing:
+        C.die(f"模板缺少占位符：{'、'.join(missing)}（自定义模板需满足 assets/report.template.html 的注入契约）")
     html = (
         tpl.replace("__PAGE_TITLE__", page_title)
         .replace("__THEME_KEY__", theme_key)

@@ -86,7 +86,8 @@ def main(argv=None):
     keywords = {
         "core": core,
         "expanded": [],
-        "searchMatch": [w for w in [args.company, args.city] if w],
+        # 默认收集全部搜索结果；只有显式填写时才按词过滤（避免静默丢掉行业泛化搜索）
+        "searchMatch": [],
     }
     project = dict(C.DEFAULT_PROJECT)
     project.update(

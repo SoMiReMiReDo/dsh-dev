@@ -6,11 +6,15 @@
 - 确认 skill 安装在文件系统 skill 根目录：`~/.dsh/skills/interview-research/SKILL.md`（或项目 `.dsh/skills/`、`~/.agents/skills/`）。
 - skill 目录必须有 `SKILL.md` 且 frontmatter 含 `name`、`description`。
 - skill 列表在会话开始时注入；装完要**新开一个会话**（或重启 DSH）。
-- 校验：`bash install.sh --check`。
+- 校验：在仓库根目录 `bash install.sh --check`（或 `curl -fsSL https://raw.githubusercontent.com/SoMiReMiReDo/dsh-dev/dev/interview-research/install.sh | bash -s -- --check`）。
 
 **没有 `xhs_*` 工具**
 - `dsh-xhs-check` 插件没装或没启用。用仓库 `install.sh` 安装（会先装 `dsh-inner-chrome` 依赖），重启 DSH。
 - 插件版本闸门：`xhs-check/package.json` 声明 `engines.dsh`，DSH 版本不匹配时插件管理器会拒绝；按提示 `dsh plugin --profile <p> allow-version ...`，或升级/降级 DSH。**不建议在生产 profile 放宽版本限制**。
+
+**`install.sh` 找不到 / 无法运行**
+- 该脚本只在**仓库根目录**（或通过上面的 curl 一行命令）可用；skill 安装到 `~/.dsh/skills/` 后该目录没有 `install.sh`。
+- 管道模式（`curl | bash`）没有仓库上下文：脚本会克隆到 `DSH_DEV_DIR`（默认 `~/.dsh/plugins/dsh-dev`）作为插件 link 目标，不要删除该缓存目录。
 
 **`install.sh` 报 dsh CLI 找不到**
 - macOS 默认：`/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh`

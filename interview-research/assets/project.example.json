@@ -31,11 +31,7 @@
    "海力士 offer 大连",
    "海力士 校招 大连"
   ],
-  "searchMatch": [
-   "海力士",
-   "hynix",
-   "sk海力士"
-  ]
+  "searchMatch": []
  },
  "topicPattern": "海力士|hynix|sk海力士",
  "tagRules": [

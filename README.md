@@ -58,7 +58,7 @@ curl -fsSL https://raw.githubusercontent.com/SoMiReMiReDo/dsh-dev/dev/interview-
 环境要求：Node >= 22.19.0，DSH >= 0.2.1-rc.5 < 0.3.0（各插件 `engines.dsh` 已声明）。
 
 ```sh
-git clone --branch dev/ppt-ultra https://github.com/SoMiReMiReDo/dsh-dev.git
+git clone --branch dev/interview-research https://github.com/SoMiReMiReDo/dsh-dev.git
 ```
 
 只装面经调研所需的 skill + 两个插件（`inner-chrome`、`xhs-check`），用仓库根目录的 `install.sh` 一条命令完成，见上文「面试调研 Skill」。

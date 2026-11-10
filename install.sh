@@ -39,7 +39,25 @@ REPO_DIR=""
 SKILL_DST="$SKILLS_DIR/$SKILL_NAME"
 
 usage() {
-  sed -n '2,22p' "$0" 2>/dev/null | sed 's/^# \{0,1\}//' || true
+  cat <<'USAGE'
+interview-research 一键安装：skill + dsh-inner-chrome + dsh-xhs-check 插件
+
+用法：
+  bash install.sh                     # 安装到默认 desktop profile
+  bash install.sh --profile web       # 指定 profile
+  bash install.sh --repo <仓库目录>    # 用本地仓库（否则从 GitHub 克隆/用缓存）
+  bash install.sh --skill-dir <目录>   # skill 安装目录（默认 $DSH_HOME/skills）
+  bash install.sh --dry-run           # 只打印将执行的命令
+  bash install.sh --check             # 只检查安装状态（全装好返回 0）
+  bash install.sh --uninstall         # 卸载 skill（插件需按提示手动移除）
+  bash install.sh --force             # 覆盖非本安装器创建的同名 skill 目录
+  bash install.sh --help
+
+远端一条命令：
+  curl -fsSL https://raw.githubusercontent.com/SoMiReMiReDo/dsh-dev/dev/interview-research/install.sh | bash
+
+环境变量：DSH_HOME / DSH_PROFILE / DSH_CLI / DSH_SKILLS_DIR / DSH_DEV_REPO / DSH_DEV_REF / DSH_DEV_DIR
+USAGE
 }
 
 log() { printf '[install] %s\n' "$*"; }
@@ -111,7 +129,9 @@ resolve_repo() {
     return 0
   fi
   mkdir -p "$(dirname "$CACHE_DIR")"
-  git clone --depth 1 --branch "$REF" "$REPO_URL" "$CACHE_DIR"
+  if ! git clone --depth 1 --branch "$REF" "$REPO_URL" "$CACHE_DIR"; then
+    die "克隆失败：${REPO_URL}（分支 ${REF}）。检查网络、分支是否存在、或改用 --repo 指定本地仓库。"
+  fi
   printf 'source=%s\nref=%s\ninstalledAt=%s\n' "$REPO_URL" "$REF" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >"$CACHE_DIR/.install-cache"
   REPO_DIR="$CACHE_DIR"
   is_repo_root "$REPO_DIR" || die "克隆完成但仓库结构不符合预期：$REPO_DIR"
@@ -171,7 +191,12 @@ bundles = ((doc.get("dsh") or {}).get("profile") or {}).get("bundles") or []
 sys.exit(0 if (name in deps and name in bundles) else 1)
 PY
   else
-    grep -q "\"$1\"" "$manifest" && grep -q "\"$1\"" "$manifest"
+    # 没有 python3 时无法可靠区分 deps 与 bundles：按“未安装”处理，让 CLI 幂等重装；
+    # 只有明确同时出现在依赖与 bundles 列表里才算已安装（grep 近似判断）。
+    if grep -q "\"$1\"" "$manifest" && grep -q "dsh-$1" "$manifest"; then
+      return 1
+    fi
+    return 1
   fi
 }
 
@@ -203,6 +228,11 @@ show_status() {
 # ---------- 3. 安装 / 卸载 ----------
 install_skill() {
   local src="$REPO_DIR/$SKILL_NAME"
+  if [ "$DRY_RUN" -eq 1 ] && [ ! -f "$src/SKILL.md" ]; then
+    log "  [dry-run] 将先克隆 ${REPO_URL}（${REF}）→ ${REPO_DIR}"
+    log "  [dry-run] mkdir -p ${SKILL_DST} && cp -R ${src}/. ${SKILL_DST}/"
+    return 0
+  fi
   [ -f "$src/SKILL.md" ] || die "仓库里找不到 skill：$src"
   if [ -d "$SKILL_DST" ] && [ ! -f "$SKILL_DST/.install-source" ] && [ "$FORCE" -ne 1 ]; then
     die "$SKILL_DST 已存在且不是本安装器装的（无 .install-source）。确认要覆盖请加 --force。"
